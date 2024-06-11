@@ -25,9 +25,11 @@ public class PlayerController : MonoBehaviour
     [HideInInspector]
     public float boostMoveSpeed;
 
-    [Header("Keybinds")]
-    public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode runKey = KeyCode.LeftShift;
+    private KeyCode jumpKey = KeyCode.Space;
+    private KeyCode runKey = KeyCode.LeftShift;
+    private KeyCode crouchKey = KeyCode.LeftControl;
+
+
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -101,11 +103,7 @@ public class PlayerController : MonoBehaviour
     {
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
-
-        // when to jump
-        //if(Input.GetKey(jumpKey) && readyToJump && grounded)
-        //Debug.Log(Input.GetKey(jumpKey));
-        //Debug.Log(grounded);
+        
         if (Input.GetKey(jumpKey) && readyToJump && grounded)
         {
             readyToJump = false;
@@ -119,26 +117,31 @@ public class PlayerController : MonoBehaviour
         {
             if (stamina >= staminaRedZone){
                 penaltyStamina = false;
-                StartRun();
+                Run(true);
             }
             else if (stamina > 0f){
                 if(!penaltyStamina)
-                    StartRun();
-                else 
-                    return;
+                    Run(true);
             }
             else if(stamina < 0.6f){
                 penaltyStamina = true;
-                StopRun();
+                Run(false);
             }
             else{
-                StopRun();
+                Run(false);
             }
         }
-        else
-        {
-            StopRun();
+        else{
+            Run(false);
         }
+
+        if (Input.GetKey(crouchKey) && grounded)
+            Crouch(true);
+        else
+            Crouch(false);
+
+
+        //isCrouch();
     }
 
     private void MovePlayer()
@@ -182,19 +185,22 @@ public class PlayerController : MonoBehaviour
         readyToJump = true;
     }
 
-    private void StartRun()
+    private void Run(bool typeRun)
     {
-        running = true;
+        if(typeRun)
+            running = true;
+        else
+            running = false;
     }
 
-    private void StopRun()
-    {
-        running = false;
-    }
-
-    private void Crouch()
-    {
-        return;
+    private void Crouch(bool typeCrouch){
+        if (typeCrouch){
+            rb.transform.localScale = new Vector3(1f, 0.5f, 1f);
+        }
+        else{
+            rb.transform.localScale = new Vector3(1f, 1f, 1f);
+        }
+        
     }
 
     public float GetParametrs(string nameParametrs)
@@ -209,4 +215,5 @@ public class PlayerController : MonoBehaviour
                 return 0;
         }
     }
+
 }

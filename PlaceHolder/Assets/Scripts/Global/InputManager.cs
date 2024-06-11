@@ -30,6 +30,7 @@ public class InputManager : MonoBehaviour
         keyBindings["TakePotion"] = KeyCode.Alpha1;
         keyBindings["DrinkPotion"] = KeyCode.Mouse0;
         keyBindings["RefilPotion"] = KeyCode.N;
+        keyBindings["Crouch"] = KeyCode.LeftControl;
     }
 
     public KeyCode GetKeyForAction(string action)
