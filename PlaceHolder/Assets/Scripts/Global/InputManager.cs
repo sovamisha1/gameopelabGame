@@ -26,6 +26,7 @@ public class InputManager : MonoBehaviour
         keyBindings["Flash"] = KeyCode.Mouse1;
         keyBindings["Jump"] = KeyCode.Space;
         keyBindings["Recharge"] = KeyCode.R;
+        keyBindings["Run"] = KeyCode.LeftShift;
     }
 
     public KeyCode GetKeyForAction(string action)

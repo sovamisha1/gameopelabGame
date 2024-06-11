@@ -5,18 +5,25 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed;
-    public float groundDrag; 
+    public float baseMoveSpeed;
+    //
+    public float groundDrag;
     public float jumpForce;
     public float jumpCooldown;
     public float airMultiplier;
+     [HideInInspector] public float staminaRedZone;
+    bool running;
     bool readyToJump;
 
-    [HideInInspector] public float walkSpeed;
-    [HideInInspector] public float sprintSpeed;
+    //[HideInInspector] public float walkSpeed;
+    //[HideInInspector] public float sprintSpeed;
+    [HideInInspector] public float moveSpeed;
+    [HideInInspector] public float stamina = 100;
+    [HideInInspector] public float boostMoveSpeed;
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode runKey = KeyCode.LeftShift;
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -37,16 +44,30 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
+        stamina = 100f;
+        boostMoveSpeed = 2f;
+        staminaRedZone = 30f;
+
         readyToJump = true;
+        running = false;
+        //moveSpeed = baseMoveSpeed;
     }
 
     private void Update()
     {
         // ground check
-        Debug.Log("Position - X: " + transform.position.x + ", Y: " + transform.position.y + ", Z: " + transform.position.z);
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, Ground);
 
         MyInput();
+        if(running){
+            stamina-=0.03f;
+            moveSpeed = baseMoveSpeed * boostMoveSpeed;
+        }
+        else{
+            if(stamina<=100f)
+                stamina+=0.01f;
+            moveSpeed=baseMoveSpeed;
+        }
         SpeedControl();
 
         // handle drag
@@ -68,8 +89,8 @@ public class PlayerController : MonoBehaviour
 
         // when to jump
         //if(Input.GetKey(jumpKey) && readyToJump && grounded) 
-        Debug.Log(Input.GetKey(jumpKey));
-        Debug.Log(grounded);
+        //Debug.Log(Input.GetKey(jumpKey));
+        //Debug.Log(grounded);
         if(Input.GetKey(jumpKey) && readyToJump && grounded)
         {
             
@@ -78,6 +99,20 @@ public class PlayerController : MonoBehaviour
             Jump();
 
             Invoke(nameof(ResetJump), jumpCooldown);
+        }
+
+        if(Input.GetKey(runKey) && grounded)
+        {
+            if (stamina >= staminaRedZone)
+                startRun();
+            else if(stamina > 0f && running)
+                return;
+            else
+                stopRun();
+        }
+        else
+        {
+            stopRun();
         }
     }
 
@@ -97,6 +132,7 @@ public class PlayerController : MonoBehaviour
 
     private void SpeedControl()
     {
+
         Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         // limit velocity if needed
@@ -114,8 +150,30 @@ public class PlayerController : MonoBehaviour
     
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
+
     private void ResetJump()
     {
         readyToJump = true;
+    }
+
+
+    private void startRun()
+    {
+        running = true;
+    }
+
+    private void stopRun()
+    {
+        running = false;
+    }
+
+    public float getParametrs(string nameParametrs)
+    {
+        switch(nameParametrs){
+            case "stamina":
+                return stamina;
+            default: 
+                return 0;
+        }
     }
 }
