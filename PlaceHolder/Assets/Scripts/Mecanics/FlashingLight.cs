@@ -3,9 +3,12 @@ using UnityEngine;
 
 public class FlashingLight : MonoBehaviour
 {
+    [Header("Objects")]
     public GameObject lightObject;
     private SphereCollider lightCollider;
+    public UIController uiController;
 
+    [Header("LigthSettings")]
     public Light lightSource;
     public float maxRangeLightSource = 30.0f;
     public float minRangeLightSource = 5.0f;
@@ -14,6 +17,7 @@ public class FlashingLight : MonoBehaviour
     public float flashDuration = 0.3f;
     public float fadeOutDuration = 0.2f;
 
+    [Header("ChardgesSettings")]
     public int maxUses = 3;
     public float rechargeTime = 10.0f;
 
@@ -23,16 +27,16 @@ public class FlashingLight : MonoBehaviour
 
     void Awake()
     {
-        lightCollider = lightObject.GetComponent<SphereCollider>();
         if (lightCollider == null)
-        {
-            Debug.LogError("No SphereCollider attached to the lightObject!");
-        }
+            lightCollider = lightObject.GetComponent<SphereCollider>();
+        if (uiController == null)
+            uiController = GameObject.FindWithTag("Canvas").GetComponent<UIController>();
     }
 
     void Start()
     {
         currentUses = maxUses;
+        uiController.SetCharges(currentUses);
     }
 
     void Update()
@@ -61,6 +65,7 @@ public class FlashingLight : MonoBehaviour
     {
         canFlash = false;
         currentUses--;
+        uiController.SetCharges(currentUses);
 
         float initialRange = lightSource.range;
         float initialIntensity = lightSource.intensity;
@@ -77,7 +82,7 @@ public class FlashingLight : MonoBehaviour
             elapsedTime += Time.deltaTime;
             lightCollider.radius = Mathf.Lerp(
                 maxRangeLightSource / 2,
-                0.1f,
+                0.01f,
                 elapsedTime / fadeOutDuration
             );
             lightSource.intensity = Mathf.Lerp(
@@ -110,6 +115,7 @@ public class FlashingLight : MonoBehaviour
         isRecharging = true;
         yield return new WaitForSeconds(rechargeTime);
         currentUses = maxUses;
+        uiController.SetCharges(currentUses);
         isRecharging = false;
         canFlash = true;
     }
