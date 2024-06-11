@@ -17,15 +17,11 @@ public class PlayerController : MonoBehaviour
     public float staminaRedZone;
     bool running;
     bool readyToJump;
+    bool penaltyStamina;
 
-    //[HideInInspector] public float walkSpeed;
-    //[HideInInspector] public float sprintSpeed;
     [HideInInspector]
     public float moveSpeed;
-
-    [HideInInspector]
-    public float stamina = 100;
-
+    
     [HideInInspector]
     public float boostMoveSpeed;
 
@@ -42,6 +38,8 @@ public class PlayerController : MonoBehaviour
 
     float horizontalInput;
     float verticalInput;
+    float stamina;
+    float hp;
 
     Vector3 moveDirection;
 
@@ -52,12 +50,14 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
+        hp = 100f;
         stamina = 100f;
-        boostMoveSpeed = 2f;
+        boostMoveSpeed = 1.75f;
         staminaRedZone = 30f;
 
         readyToJump = true;
         running = false;
+        penaltyStamina = false;
         //moveSpeed = baseMoveSpeed;
     }
 
@@ -117,12 +117,23 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKey(runKey) && grounded)
         {
-            if (stamina >= staminaRedZone)
+            if (stamina >= staminaRedZone){
+                penaltyStamina = false;
                 StartRun();
-            else if (stamina > 0f && running)
-                return;
-            else
+            }
+            else if (stamina > 0f){
+                if(!penaltyStamina)
+                    StartRun();
+                else 
+                    return;
+            }
+            else if(stamina < 0.6f){
+                penaltyStamina = true;
                 StopRun();
+            }
+            else{
+                StopRun();
+            }
         }
         else
         {
@@ -181,12 +192,19 @@ public class PlayerController : MonoBehaviour
         running = false;
     }
 
+    private void Crouch()
+    {
+        return;
+    }
+
     public float GetParametrs(string nameParametrs)
     {
         switch (nameParametrs)
         {
             case "stamina":
                 return stamina;
+            case "hp":
+                return hp;
             default:
                 return 0;
         }
