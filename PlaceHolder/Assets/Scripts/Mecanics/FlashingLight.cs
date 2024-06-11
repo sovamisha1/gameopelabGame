@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class FlashingLight : MonoBehaviour
 {
-    private InputManager inputManager;
-
     public Light lightSource;
     public float maxRangeLightSource = 30.0f;
     public float minRangeLightSource = 5.0f;
@@ -20,7 +18,7 @@ public class FlashingLight : MonoBehaviour
     private bool canFlash = true;
     private bool isRecharging = false;
 
-    void Awake()
+    void Start()
     {
         currentUses = maxUses;
     }
@@ -33,7 +31,7 @@ public class FlashingLight : MonoBehaviour
         }
 
         // Ассинхронно выполняем вспышку света
-        if (Input.GetKeyDown(inputManager.GetKeyForAction("Flash")))
+        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("Flash")))
         {
             if (canFlash && currentUses > 0)
             {
@@ -41,7 +39,7 @@ public class FlashingLight : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(inputManager.GetKeyForAction("Recharge")) && !isRecharging)
+        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("Recharge")) && !isRecharging)
         {
             StartCoroutine(Recharge());
         }
