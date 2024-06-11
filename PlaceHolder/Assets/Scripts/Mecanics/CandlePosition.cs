@@ -27,7 +27,7 @@ public class CandlePositioning : MonoBehaviour
     void PositionCandle()
     {
         // Устанавливаем положение свечи в правом нижнем углу камеры
-        Vector3 screenPoint = new Vector3(Screen.width - 100, 100, mainCamera.nearClipPlane + 1);
+        Vector3 screenPoint = new Vector3(Screen.width - 200, 100, mainCamera.nearClipPlane + 1);
         candle.transform.position = mainCamera.ScreenToWorldPoint(screenPoint);
         candle.transform.rotation = mainCamera.transform.rotation; // Может понадобиться подровнять угол свечи
     }

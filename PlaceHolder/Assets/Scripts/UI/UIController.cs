@@ -20,7 +20,6 @@ public class UIController : MonoBehaviour
     void Update()
     {
         stamina = player.GetParametrs("stamina");
-        Debug.Log(stamina);
         UpdateUI();
     }
 
