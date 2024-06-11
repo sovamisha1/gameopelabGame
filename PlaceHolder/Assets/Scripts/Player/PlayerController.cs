@@ -5,33 +5,29 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-<<<<<<< Updated upstream
     public float baseMoveSpeed;
+
     //
-=======
-    public float moveSpeed;
->>>>>>> Stashed changes
     public float groundDrag;
     public float jumpForce;
     public float jumpCooldown;
     public float airMultiplier;
-     [HideInInspector] public float staminaRedZone;
+
+    [HideInInspector]
+    public float staminaRedZone;
     bool running;
     bool readyToJump;
 
-<<<<<<< Updated upstream
     //[HideInInspector] public float walkSpeed;
     //[HideInInspector] public float sprintSpeed;
-    [HideInInspector] public float moveSpeed;
-    [HideInInspector] public float stamina = 100;
-    [HideInInspector] public float boostMoveSpeed;
-=======
     [HideInInspector]
-    public float walkSpeed;
+    public float moveSpeed;
 
     [HideInInspector]
-    public float sprintSpeed;
->>>>>>> Stashed changes
+    public float stamina = 100;
+
+    [HideInInspector]
+    public float boostMoveSpeed;
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -68,26 +64,24 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         // ground check
-<<<<<<< Updated upstream
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, Ground);
-=======
         grounded = Physics.Raycast(
             transform.position,
             Vector3.down,
             playerHeight * 0.5f + 0.3f,
             Ground
         );
->>>>>>> Stashed changes
 
         MyInput();
-        if(running){
-            stamina-=0.03f;
+        if (running)
+        {
+            stamina -= 0.03f;
             moveSpeed = baseMoveSpeed * boostMoveSpeed;
         }
-        else{
-            if(stamina<=100f)
-                stamina+=0.01f;
-            moveSpeed=baseMoveSpeed;
+        else
+        {
+            if (stamina <= 100f)
+                stamina += 0.01f;
+            moveSpeed = baseMoveSpeed;
         }
         SpeedControl();
 
@@ -109,15 +103,10 @@ public class PlayerController : MonoBehaviour
         verticalInput = Input.GetAxisRaw("Vertical");
 
         // when to jump
-<<<<<<< Updated upstream
-        //if(Input.GetKey(jumpKey) && readyToJump && grounded) 
+        //if(Input.GetKey(jumpKey) && readyToJump && grounded)
         //Debug.Log(Input.GetKey(jumpKey));
         //Debug.Log(grounded);
-        if(Input.GetKey(jumpKey) && readyToJump && grounded)
-=======
-        //if(Input.GetKey(jumpKey) && readyToJump && grounded)
         if (Input.GetKey(jumpKey) && readyToJump && grounded)
->>>>>>> Stashed changes
         {
             readyToJump = false;
 
@@ -126,18 +115,18 @@ public class PlayerController : MonoBehaviour
             Invoke(nameof(ResetJump), jumpCooldown);
         }
 
-        if(Input.GetKey(runKey) && grounded)
+        if (Input.GetKey(runKey) && grounded)
         {
             if (stamina >= staminaRedZone)
-                startRun();
-            else if(stamina > 0f && running)
+                StartRun();
+            else if (stamina > 0f && running)
                 return;
             else
-                stopRun();
+                StopRun();
         }
         else
         {
-            stopRun();
+            StopRun();
         }
     }
 
@@ -159,7 +148,6 @@ public class PlayerController : MonoBehaviour
 
     private void SpeedControl()
     {
-
         Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         // limit velocity if needed
@@ -183,23 +171,23 @@ public class PlayerController : MonoBehaviour
         readyToJump = true;
     }
 
-
-    private void startRun()
+    private void StartRun()
     {
         running = true;
     }
 
-    private void stopRun()
+    private void StopRun()
     {
         running = false;
     }
 
-    public float getParametrs(string nameParametrs)
+    public float GetParametrs(string nameParametrs)
     {
-        switch(nameParametrs){
+        switch (nameParametrs)
+        {
             case "stamina":
                 return stamina;
-            default: 
+            default:
                 return 0;
         }
     }

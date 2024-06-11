@@ -123,6 +123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lightObject: {fileID: 3671503222584084120}
+  uiController: {fileID: 0}
   lightSource: {fileID: 5482696582129306402}
   maxRangeLightSource: 30
   minRangeLightSource: 5
@@ -284,5 +285,5 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.01
+  m_Radius: 0.0001
   m_Center: {x: 0, y: 0, z: 0}

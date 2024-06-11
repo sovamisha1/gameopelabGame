@@ -13,9 +13,16 @@ public class UIController : MonoBehaviour
     void Start()
     {
         player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        chargeText = GameObject.FindWithTag("ChargesText").GetComponent<Text>();
+        staminaSlider = GameObject.FindWithTag("StaminaSlider").GetComponent<Slider>();
     }
 
-    void Update() { }
+    void Update()
+    {
+        stamina = player.GetParametrs("stamina");
+        Debug.Log(stamina);
+        UpdateUI();
+    }
 
     public void SetCharges(int newCharges)
     {
@@ -23,5 +30,8 @@ public class UIController : MonoBehaviour
         chargeText.text = "Осталось зарядов: " + charges;
     }
 
-    private void UpdateUI() { }
+    private void UpdateUI()
+    {
+        staminaSlider.value = stamina;
+    }
 }
