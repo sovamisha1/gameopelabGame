@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class FlashingLight : MonoBehaviour
 {
+    public GameObject lightObject;
+    private SphereCollider lightCollider;
+
     public Light lightSource;
     public float maxRangeLightSource = 30.0f;
     public float minRangeLightSource = 5.0f;
@@ -18,6 +21,15 @@ public class FlashingLight : MonoBehaviour
     private bool canFlash = true;
     private bool isRecharging = false;
 
+    void Awake()
+    {
+        lightCollider = lightObject.GetComponent<SphereCollider>();
+        if (lightCollider == null)
+        {
+            Debug.LogError("No SphereCollider attached to the lightObject!");
+        }
+    }
+
     void Start()
     {
         currentUses = maxUses;
@@ -30,13 +42,13 @@ public class FlashingLight : MonoBehaviour
             lightSource.range -= 4 * Time.deltaTime;
         }
 
-        // Ассинхронно выполняем вспышку света
-        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("Flash")))
+        if (
+            Input.GetKeyDown(InputManager.instance.GetKeyForAction("Flash"))
+            && canFlash
+            && currentUses > 0
+        )
         {
-            if (canFlash && currentUses > 0)
-            {
-                StartCoroutine(FlashLight());
-            }
+            StartCoroutine(FlashLight());
         }
 
         if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("Recharge")) && !isRecharging)
@@ -51,21 +63,23 @@ public class FlashingLight : MonoBehaviour
         currentUses--;
 
         float initialRange = lightSource.range;
-        float elapsedTime = 0f;
         float initialIntensity = lightSource.intensity;
+        float elapsedTime = 0f;
 
-        // Увеличиваем диапазон света до максимального значения
         lightSource.range = maxRangeLightSource;
         lightSource.intensity = maxIntensityLightSource;
+        lightCollider.radius = maxRangeLightSource / 2;
 
-        // Ждем указанное количество времени
         yield return new WaitForSeconds(flashDuration);
 
-        // Плавно уменьшаем диапазон света до минимального значения
-        initialRange = lightSource.range;
         while (elapsedTime < fadeOutDuration)
         {
             elapsedTime += Time.deltaTime;
+            lightCollider.radius = Mathf.Lerp(
+                maxRangeLightSource / 2,
+                0.1f,
+                elapsedTime / fadeOutDuration
+            );
             lightSource.intensity = Mathf.Lerp(
                 initialIntensity,
                 minIntensityLightSource,
@@ -79,7 +93,6 @@ public class FlashingLight : MonoBehaviour
             yield return null;
         }
 
-        // Устанавливаем диапазон света в минимальное значение на всякий
         lightSource.range = minRangeLightSource;
         lightSource.intensity = minIntensityLightSource;
 
