@@ -18,16 +18,19 @@ public class PlayerController : MonoBehaviour
     bool running;
     bool readyToJump;
     bool penaltyStamina;
+    bool crouchActiv;
 
     [HideInInspector]
     public float moveSpeed;
     
     [HideInInspector]
-    public float boostMoveSpeed;
+    public float coefRunSpeed;
+    [HideInInspector]
+    public float coefCrouchSpeed;
 
-    private KeyCode jumpKey = KeyCode.Space;
-    private KeyCode runKey = KeyCode.LeftShift;
-    private KeyCode crouchKey = KeyCode.LeftControl;
+    private KeyCode jumpKey;// = InputManager.instance.GetKeyForAction("Jump"); // KeyCode.Space;
+    private KeyCode runKey; //=  InputManager.instance.GetKeyForAction("Run"); //KeyCode.LeftShift;
+    private KeyCode crouchKey; //= InputManager.instance.GetKeyForAction("Crouch"); //KeyCode.LeftControl; 
 
 
 
@@ -54,9 +57,15 @@ public class PlayerController : MonoBehaviour
 
         hp = 100f;
         stamina = 100f;
-        boostMoveSpeed = 1.75f;
+        coefRunSpeed = 1.75f;
+        coefCrouchSpeed = 0.7f;
         staminaRedZone = 30f;
 
+        jumpKey = InputManager.instance.GetKeyForAction("Jump");
+        runKey =  InputManager.instance.GetKeyForAction("Run");
+        crouchKey = InputManager.instance.GetKeyForAction("Crouch");
+
+        crouchActiv = false;
         readyToJump = true;
         running = false;
         penaltyStamina = false;
@@ -74,13 +83,16 @@ public class PlayerController : MonoBehaviour
         );
 
         MyInput();
-        if (running)
-        {
+        if (running){
             stamina -= 0.03f;
-            moveSpeed = baseMoveSpeed * boostMoveSpeed;
+            moveSpeed = baseMoveSpeed * coefRunSpeed;
         }
-        else
-        {
+        else if(crouchActiv){
+            if (stamina <= 100f)
+                stamina += 0.01f;
+            moveSpeed = baseMoveSpeed * coefCrouchSpeed;
+        }
+        else{
             if (stamina <= 100f)
                 stamina += 0.01f;
             moveSpeed = baseMoveSpeed;
@@ -113,7 +125,7 @@ public class PlayerController : MonoBehaviour
             Invoke(nameof(ResetJump), jumpCooldown);
         }
 
-        if (Input.GetKey(runKey) && grounded)
+        if (Input.GetKey(runKey) && grounded && !crouchActiv)
         {
             if (stamina >= staminaRedZone){
                 penaltyStamina = false;
@@ -135,10 +147,10 @@ public class PlayerController : MonoBehaviour
             Run(false);
         }
 
-        if (Input.GetKey(crouchKey) && grounded)
-            Crouch(true);
-        else
-            Crouch(false);
+        if (Input.GetKeyDown(crouchKey) && grounded && !crouchActiv)
+            Crouch();
+        else if(Input.GetKeyDown(crouchKey) && grounded && crouchActiv)
+            StandUp();
 
 
         //isCrouch();
@@ -193,14 +205,18 @@ public class PlayerController : MonoBehaviour
             running = false;
     }
 
-    private void Crouch(bool typeCrouch){
-        if (typeCrouch){
-            rb.transform.localScale = new Vector3(1f, 0.5f, 1f);
-        }
-        else{
-            rb.transform.localScale = new Vector3(1f, 1f, 1f);
-        }
-        
+    private void Crouch(){
+        if(running)
+            Run(false);
+        rb.transform.position = new Vector3(rb.transform.position.x, rb.transform.position.y-0.5f, rb.transform.position.z);
+        rb.transform.localScale = new Vector3(1f, 0.5f, 1f);
+        crouchActiv = true;
+    }
+
+    private void StandUp(){
+        rb.transform.position = new Vector3(rb.transform.position.x, rb.transform.position.y+0.5f, rb.transform.position.z);
+        rb.transform.localScale = new Vector3(1f, 1f, 1f);
+        crouchActiv = false;
     }
 
     public float GetParametrs(string nameParametrs)
