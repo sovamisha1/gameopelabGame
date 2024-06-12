@@ -260,7 +260,7 @@ public class PlayerController : MonoBehaviour
     public void ReceivingDamage(float giveDamage)
     {
         hp -= giveDamage;
-        if (hp<100)
+        if (hp<0)
             dead = true;
     }
 

@@ -7,8 +7,9 @@ public class FlashingLight : MonoBehaviour
     public GameObject lightObject;
     public GameObject candle;
     public Camera mainCamera;
-    private SphereCollider lightCollider;
+    public SphereCollider lightCollider;
     public UIController uiController;
+    public PlayerController player;
 
     [Header("LigthSettings")]
     public Light lightSource;
@@ -31,6 +32,8 @@ public class FlashingLight : MonoBehaviour
     {
         if (lightCollider == null)
             lightCollider = lightObject.GetComponent<SphereCollider>();
+        if (player == null)
+            player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         if (uiController == null)
             uiController = GameObject.FindWithTag("Canvas").GetComponent<UIController>();
         if (candle == null)

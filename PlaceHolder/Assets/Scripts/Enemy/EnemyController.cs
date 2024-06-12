@@ -3,14 +3,18 @@ using System.Collections;
 
 public class EnemyController : MonoBehaviour
 {
-    public Transform player;
+    public GameObject player;
+    public Transform playerTransform;
+    public PlayerController playerController;
     public float moveSpeed = 2f;
+
     private bool shouldRetreat = false;
 
     void Start()
     {
-        GameObject TMPplayer = GameObject.FindWithTag("Player");
-        player = TMPplayer.transform;
+        GameObject player = GameObject.FindWithTag("Player");
+        playerTransform = player.GetComponent<Transform>();
+        playerController = player.GetComponent<PlayerController>();
     }
 
     void Update()
@@ -35,7 +39,7 @@ public class EnemyController : MonoBehaviour
 
     void MoveTowardsPlayer()
     {
-        Vector3 direction = (player.position - transform.position).normalized;
+        Vector3 direction = (playerTransform.position - transform.position).normalized;
         transform.position += direction * moveSpeed * Time.deltaTime;
     }
 
@@ -45,7 +49,7 @@ public class EnemyController : MonoBehaviour
         float retreatTime = 3f; // Время отступления
         while (retreatTime > 0)
         {
-            Vector3 retreatDirection = (transform.position - player.position).normalized;
+            Vector3 retreatDirection = (transform.position - playerTransform.position).normalized;
             transform.position += retreatDirection * moveSpeed * Time.deltaTime;
             retreatTime -= Time.deltaTime;
             yield return null; // Ждем следующий кадр
@@ -57,7 +61,7 @@ public class EnemyController : MonoBehaviour
     IEnumerator DealDamageAndDie()
     {
         Destroy(gameObject);
-        Debug.Log("Типа нанес миллион урона");
+        playerController.ReceivingDamage(25f);
         yield return null;
     }
 }

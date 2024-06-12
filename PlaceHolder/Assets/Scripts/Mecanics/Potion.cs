@@ -8,6 +8,7 @@ public class Potion : MonoBehaviour
     public GameObject emptyPotionModel;
     public GameObject opendPotionModel;
     public GameObject fullPotionModel;
+    public PlayerController playerController;
 
     private Animator animator;
     private bool canDrink = true;
@@ -21,6 +22,8 @@ public class Potion : MonoBehaviour
             mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (potion == null)
             potion = this.gameObject;
+        if (playerController == null)
+            playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         if (animator == null)
             animator = potion.GetComponent<Animator>();
         if (emptyPotionModel == null)
@@ -81,11 +84,11 @@ public class Potion : MonoBehaviour
         animator.SetBool("isStartedDrinking", false);
         yield return new WaitForSeconds(1f);
         SwitchPotionModel(gameObject, emptyPotionModel);
+        playerController.UseHeal(100f);
         animator.SetBool("isFinishedDrinking", true);
         yield return new WaitForSeconds(1.25f);
         animator.SetBool("isFinishedDrinking", false);
         Positionpotion();
-        Debug.Log("Типа захилил на миллион");
         canSwitch = true;
         potionIsNotEmpty = false;
         yield break;
