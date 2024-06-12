@@ -6,10 +6,12 @@ public class Potion : MonoBehaviour
     public GameObject potion;
     public Camera mainCamera;
     public GameObject emptyPotionModel;
+    public GameObject opendPotionModel;
     public GameObject fullPotionModel;
 
-    private bool canDrink = false;
-    private bool takePotion = false;
+    private Animator animator;
+    private bool canDrink = true;
+    private bool takePotion = true;
     private bool canSwitch = true;
     private bool potionIsNotEmpty = true;
 
@@ -19,9 +21,17 @@ public class Potion : MonoBehaviour
             mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (potion == null)
             potion = this.gameObject;
+        if (animator == null)
+            animator = potion.GetComponent<Animator>();
+        if (emptyPotionModel == null)
+            emptyPotionModel = GameObject.FindWithTag("PotionEmpty");
+        if (fullPotionModel == null)
+            fullPotionModel = GameObject.FindWithTag("PotionFull");
+        if (opendPotionModel == null)
+            opendPotionModel = GameObject.FindWithTag("PotionOpend");
         if (potion != null && mainCamera != null)
         {
-            potion.transform.parent = mainCamera.transform;
+            potion.transform.SetParent(mainCamera.transform, false);
             Positionpotion();
         }
 
@@ -29,7 +39,9 @@ public class Potion : MonoBehaviour
         {
             child.gameObject.GetComponent<Renderer>().enabled = takePotion;
         }
+
         potion.GetComponent<Renderer>().enabled = takePotion;
+        RefilPotion();
     }
 
     void Update()
@@ -52,7 +64,7 @@ public class Potion : MonoBehaviour
         }
         if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("RefilPotion")))
         {
-            if (!potionIsNotEmpty)
+            if (!potionIsNotEmpty && potion.GetComponent<Renderer>().enabled == true)
             {
                 RefilPotion();
             }
@@ -62,11 +74,18 @@ public class Potion : MonoBehaviour
     IEnumerator DrinkPotion()
     {
         canSwitch = false;
-        Vector3 screenPoint = new Vector3(Screen.width - 2200, 800, mainCamera.nearClipPlane + 1);
-        potion.transform.position = mainCamera.ScreenToWorldPoint(screenPoint);
-        HideAndShowFirstChild(1);
-        yield return new WaitForSeconds(2);
+        animator.SetBool("isStartedDrinking", true);
+        HideAndShowFirstChild(false);
+        SwitchPotionModel(gameObject, opendPotionModel);
+        yield return new WaitForSeconds(1.25f);
+        animator.SetBool("isStartedDrinking", false);
+        yield return new WaitForSeconds(1f);
         SwitchPotionModel(gameObject, emptyPotionModel);
+        animator.SetBool("isFinishedDrinking", true);
+        yield return new WaitForSeconds(1.25f);
+        animator.SetBool("isFinishedDrinking", false);
+        Positionpotion();
+        Debug.Log("Типа захилил на миллион");
         canSwitch = true;
         potionIsNotEmpty = false;
         yield break;
@@ -75,7 +94,8 @@ public class Potion : MonoBehaviour
     void RefilPotion()
     {
         SwitchPotionModel(gameObject, fullPotionModel);
-        HideAndShowFirstChild(0);
+        HideAndShowFirstChild(true);
+        HideAndSecondFirstChild(true);
         potionIsNotEmpty = true;
     }
 
@@ -83,10 +103,9 @@ public class Potion : MonoBehaviour
     {
         canDrink = !canDrink;
         takePotion = !takePotion;
-        foreach (Transform child in potion.transform)
-        {
-            child.gameObject.GetComponent<Renderer>().enabled = takePotion;
-        }
+        if (potionIsNotEmpty)
+            HideAndShowFirstChild(takePotion);
+        HideAndSecondFirstChild(takePotion);
         potion.GetComponent<Renderer>().enabled = takePotion;
     }
 
@@ -101,27 +120,22 @@ public class Potion : MonoBehaviour
         mr1.materials = mr2.materials;
     }
 
-    public void HideAndShowFirstChild(int toDo)
+    void HideAndShowFirstChild(bool toDo)
     {
-        if (transform.childCount > 0)
-        {
-            Transform firstChild = transform.GetChild(0);
+        Transform firstChild = transform.GetChild(0);
+        firstChild.gameObject.GetComponent<Renderer>().enabled = toDo;
+    }
 
-            if (firstChild != null && toDo == 1)
-            {
-                firstChild.gameObject.GetComponent<Renderer>().enabled = false;
-            }
-            else if (firstChild != null && toDo == 0)
-            {
-                firstChild.gameObject.GetComponent<Renderer>().enabled = takePotion;
-            }
-        }
+    void HideAndSecondFirstChild(bool toDo)
+    {
+        Transform secondChild = transform.GetChild(1);
+        secondChild.gameObject.GetComponent<Renderer>().enabled = toDo;
     }
 
     void Positionpotion()
     {
-        Vector3 screenPoint = new Vector3(Screen.width - 2200, 200, mainCamera.nearClipPlane + 1);
-        potion.transform.position = mainCamera.ScreenToWorldPoint(screenPoint);
-        // potion.transform.rotation = mainCamera.transform.rotation; // угол
+        Vector3 localPosition = new Vector3(-0.95f, -0.6f, 1.4f);
+        potion.transform.localPosition = localPosition;
+        potion.transform.localRotation = Quaternion.Euler(-90, 0, 0);
     }
 }

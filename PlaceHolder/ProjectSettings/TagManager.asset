@@ -8,6 +8,11 @@ TagManager:
   - Canvas
   - StaminaSlider
   - ChargesText
+  - HpSlider
+  - PlayerBodyCollider
+  - PotionFull
+  - PotionEmpty
+  - PotionOpend
   layers:
   - Default
   - TransparentFX

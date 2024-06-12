@@ -5,6 +5,8 @@ public class FlashingLight : MonoBehaviour
 {
     [Header("Objects")]
     public GameObject lightObject;
+    public GameObject candle;
+    public Camera mainCamera;
     private SphereCollider lightCollider;
     public UIController uiController;
 
@@ -31,16 +33,23 @@ public class FlashingLight : MonoBehaviour
             lightCollider = lightObject.GetComponent<SphereCollider>();
         if (uiController == null)
             uiController = GameObject.FindWithTag("Canvas").GetComponent<UIController>();
+        if (candle == null)
+            candle = this.gameObject;
+        if (mainCamera == null)
+            mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
     }
 
     void Start()
     {
+        candle.transform.SetParent(mainCamera.transform, false);
         currentUses = maxUses;
         uiController.SetCharges(currentUses);
     }
 
     void Update()
     {
+        Positionpotion();
+
         if (lightSource.range > minRangeLightSource)
         {
             lightSource.range -= 4 * Time.deltaTime;
@@ -118,5 +127,12 @@ public class FlashingLight : MonoBehaviour
         uiController.SetCharges(currentUses);
         isRecharging = false;
         canFlash = true;
+    }
+
+    void Positionpotion()
+    {
+        Vector3 localPosition = new Vector3(0.95f, -0.6f, 1.4f);
+        candle.transform.localPosition = localPosition;
+        candle.transform.localRotation = Quaternion.Euler(0, 0, 0);
     }
 }

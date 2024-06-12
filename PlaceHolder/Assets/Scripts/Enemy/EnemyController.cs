@@ -27,6 +27,10 @@ public class EnemyController : MonoBehaviour
         {
             StartCoroutine(RetreatAndResume());
         }
+        if (other.CompareTag("PlayerBodyCollider"))
+        {
+            StartCoroutine(DealDamageAndDie());
+        }
     }
 
     void MoveTowardsPlayer()
@@ -48,5 +52,12 @@ public class EnemyController : MonoBehaviour
         }
 
         shouldRetreat = false;
+    }
+
+    IEnumerator DealDamageAndDie()
+    {
+        Destroy(gameObject);
+        Debug.Log("Типа нанес миллион урона");
+        yield return null;
     }
 }

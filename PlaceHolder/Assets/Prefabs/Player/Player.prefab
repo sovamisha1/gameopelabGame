@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 6325554932603556622}
   m_Layer: 3
   m_Name: PlayerBody
-  m_TagString: Untagged
+  m_TagString: PlayerBodyCollider
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -196,7 +196,7 @@ Transform:
   m_GameObject: {fileID: 6492051465709803735}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 0}
+  m_LocalPosition: {x: -5.0767627, y: 2.0000002, z: 3.787542}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -244,17 +244,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ade2ab4243ff06b448a7480b89253d0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMoveSpeed: 0
+  baseMoveSpeed: 4
   groundDrag: 4
   jumpForce: 7
   jumpCooldown: 0.25
   airMultiplier: 0.4
   staminaRedZone: 0
   moveSpeed: 4
-  stamina: 100
   boostMoveSpeed: 0
-  jumpKey: 32
-  runKey: 304
   playerHeight: 2
   Ground:
     serializedVersion: 2
