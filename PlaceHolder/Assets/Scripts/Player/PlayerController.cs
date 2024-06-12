@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
     bool readyToJump;
     bool penaltyStamina;
     bool crouchActiv;
+    bool dead;
 
     [HideInInspector]
     public float moveSpeed;
@@ -64,6 +65,7 @@ public class PlayerController : MonoBehaviour
         runKey = InputManager.instance.GetKeyForAction("Run");
         crouchKey = InputManager.instance.GetKeyForAction("Crouch");
 
+        dead = false;
         crouchActiv = false;
         readyToJump = true;
         running = false;
@@ -247,4 +249,20 @@ public class PlayerController : MonoBehaviour
                 return 0;
         }
     }
+
+    public void UseHeal(float giveHp)
+    {
+        hp += giveHp;
+        if (hp>100)
+            hp = 100;
+    }
+
+    public void ReceivingDamage(float giveDamage)
+    {
+        hp -= giveDamage;
+        if (hp<100)
+            dead = true;
+    }
+
+
 }
