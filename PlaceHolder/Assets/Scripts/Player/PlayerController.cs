@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
         coefRunSpeed = 1.75f;
         coefCrouchSpeed = 0.7f;
         staminaRedZone = 30f;
-        playerTakeRange = playerHeight * 0.5f;
+        playerTakeRange = playerHeight * 0.75f;
 
         jumpKey = InputManager.instance.GetKeyForAction("Jump");
         runKey = InputManager.instance.GetKeyForAction("Run");
@@ -75,6 +75,7 @@ public class PlayerController : MonoBehaviour
         readyToJump = true;
         running = false;
         penaltyStamina = false;
+        isInteract = false;
         //moveSpeed = baseMoveSpeed;
     }
 
@@ -280,10 +281,20 @@ public class PlayerController : MonoBehaviour
     private void GetInfoItems(){
         isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, Interactable);
         if(isInteract && Input.GetKeyDown(interactKey)){
-            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+            Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null){
                 interactable.Interact();
             }
         }
     }
+    
+
+
+
+
 }
+
+
+
+
+
