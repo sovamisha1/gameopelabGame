@@ -64,7 +64,7 @@ public class PlayerController : MonoBehaviour
         coefRunSpeed = 1.75f;
         coefCrouchSpeed = 0.7f;
         staminaRedZone = 30f;
-        playerTakeRange = playerHeight * 0.75f;
+        playerTakeRange = playerHeight * 1.25f;
 
         jumpKey = InputManager.instance.GetKeyForAction("Jump");
         runKey = InputManager.instance.GetKeyForAction("Run");
@@ -124,6 +124,8 @@ public class PlayerController : MonoBehaviour
 
     private void MyInput()
     {
+        ShowHint();
+        GetInfoItems();
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
@@ -167,6 +169,8 @@ public class PlayerController : MonoBehaviour
             Crouch();
         else if (Input.GetKeyDown(crouchKey) && grounded && crouchActiv)
             StandUp();
+
+        
 
         //isCrouch();
     }
@@ -273,7 +277,7 @@ public class PlayerController : MonoBehaviour
 
     public bool ShowHint(){
         int layerMask = LayerMask.GetMask("Interactable");
-        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, layerMask);
+        isInteract = Physics.Raycast(new Ray(transform.position, orientation.forward), out hit, playerTakeRange, layerMask);
         if(isInteract)
             return true;
         else 
@@ -282,7 +286,7 @@ public class PlayerController : MonoBehaviour
 
     private void GetInfoItems(){
         int layerMask = LayerMask.GetMask("Interactable");
-        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, layerMask);
+        isInteract = Physics.Raycast(new Ray(transform.position, orientation.forward), out hit, playerTakeRange, layerMask);
         if(isInteract && Input.GetKeyDown(interactKey)){
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null){
