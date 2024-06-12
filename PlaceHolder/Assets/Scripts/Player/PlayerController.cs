@@ -211,16 +211,28 @@ public class PlayerController : MonoBehaviour
             running = false;
     }
 
-    private void Crouch(bool typeCrouch)
+    private void Crouch()
     {
-        if (typeCrouch)
-        {
-            rb.transform.localScale = new Vector3(1f, 0.5f, 1f);
-        }
-        else
-        {
-            rb.transform.localScale = new Vector3(1f, 1f, 1f);
-        }
+        if (running)
+            Run(false);
+        rb.transform.position = new Vector3(
+            rb.transform.position.x,
+            rb.transform.position.y - 0.5f,
+            rb.transform.position.z
+        );
+        rb.transform.localScale = new Vector3(1f, 0.5f, 1f);
+        crouchActiv = true;
+    }
+
+    private void StandUp()
+    {
+        rb.transform.position = new Vector3(
+            rb.transform.position.x,
+            rb.transform.position.y + 0.5f,
+            rb.transform.position.z
+        );
+        rb.transform.localScale = new Vector3(1f, 1f, 1f);
+        crouchActiv = false;
     }
 
     public float GetParametrs(string nameParametrs)
