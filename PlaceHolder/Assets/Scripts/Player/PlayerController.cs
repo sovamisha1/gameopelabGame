@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private KeyCode jumpKey; // = InputManager.instance.GetKeyForAction("Jump"); // KeyCode.Space;
     private KeyCode runKey; //=  InputManager.instance.GetKeyForAction("Run"); //KeyCode.LeftShift;
     private KeyCode crouchKey; //= InputManager.instance.GetKeyForAction("Crouch"); //KeyCode.LeftControl;
+    private KeyCode interactKey; //= InputManager.instance.GetKeyForAction("Interact"); //KeyCode.LeftControl;
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -45,8 +46,10 @@ public class PlayerController : MonoBehaviour
     float verticalInput;
     float stamina;
     float hp;
+    float playerTakeRange;
 
     Vector3 moveDirection;
+    RaycastHit hit;
 
     Rigidbody rb;
 
@@ -60,10 +63,12 @@ public class PlayerController : MonoBehaviour
         coefRunSpeed = 1.75f;
         coefCrouchSpeed = 0.7f;
         staminaRedZone = 30f;
+        playerTakeRange = playerHeight * 0.5f;
 
         jumpKey = InputManager.instance.GetKeyForAction("Jump");
         runKey = InputManager.instance.GetKeyForAction("Run");
         crouchKey = InputManager.instance.GetKeyForAction("Crouch");
+        interactKey = InputManager.instance.GetKeyForAction("Interact");
 
         dead = false;
         crouchActiv = false;
@@ -264,5 +269,21 @@ public class PlayerController : MonoBehaviour
             dead = true;
     }
 
+    public bool ShowHint(){
+        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, Interactable);
+        if(isInteract)
+            return true;
+        else 
+            return false;
+    }
 
+    private void GetInfoItems(){
+        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, Interactable);
+        if(isInteract && Input.GetKeyDown(interactKey)){
+            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+            if (interactable != null){
+                interactable.Interact();
+            }
+        }
+    }
 }

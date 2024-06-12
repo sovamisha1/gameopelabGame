@@ -31,6 +31,7 @@ public class InputManager : MonoBehaviour
         keyBindings["DrinkPotion"] = KeyCode.Mouse0;
         keyBindings["RefilPotion"] = KeyCode.N;
         keyBindings["Crouch"] = KeyCode.LeftControl;
+        keyBindings["Interact"] = KeyCode.E;
     }
 
     public KeyCode GetKeyForAction(string action)
