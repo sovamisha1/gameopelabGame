@@ -38,7 +38,9 @@ public class PlayerController : MonoBehaviour
     [Header("Ground Check")]
     public float playerHeight;
     public LayerMask Ground;
+    public LayerMask StairsStep;
     bool grounded;
+    bool stairssteped;
 
     public Transform orientation;
 
@@ -50,9 +52,11 @@ public class PlayerController : MonoBehaviour
 
     Vector3 moveDirection;
     RaycastHit hit;
+    public Camera cameraVector;
 
     Rigidbody rb;
     bool isInteract;
+    bool moveAndStep;
 
     private void Start()
     {
@@ -71,6 +75,9 @@ public class PlayerController : MonoBehaviour
         crouchKey = InputManager.instance.GetKeyForAction("Crouch");
         interactKey = InputManager.instance.GetKeyForAction("Interact");
 
+        if (cameraVector == null)
+            cameraVector = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
+
         dead = false;
         crouchActiv = false;
         readyToJump = true;
@@ -82,6 +89,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        
         // ground check
         grounded = Physics.Raycast(
             transform.position,
@@ -89,6 +97,16 @@ public class PlayerController : MonoBehaviour
             playerHeight * 0.5f + 0.3f,
             Ground
         );
+        stairssteped = Physics.Raycast(
+            transform.position,
+            Vector3.down,
+            playerHeight * 0.5f + 0.3f,
+            StairsStep
+        );
+        moveAndStep = (!(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)
+         || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.S)
+         || Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow)) 
+         && stairssteped);
 
         MyInput();
         if (running)
@@ -109,10 +127,14 @@ public class PlayerController : MonoBehaviour
             moveSpeed = baseMoveSpeed;
         }
         SpeedControl();
+        //Debug.Log(moveAndStep);
 
         // handle drag
         if (grounded)
             rb.drag = groundDrag;
+        else if(moveAndStep)
+            rb.drag = 999f;
+            
         else
             rb.drag = 0;
     }
@@ -129,7 +151,7 @@ public class PlayerController : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        if (Input.GetKey(jumpKey) && readyToJump && grounded)
+        if (Input.GetKey(jumpKey) && readyToJump && grounded && !crouchActiv)
         {
             readyToJump = false;
 
@@ -181,14 +203,13 @@ public class PlayerController : MonoBehaviour
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
 
         // on ground
-        if (grounded)
+        if (grounded || stairssteped){
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        }
         // in air
-        else if (!grounded)
-            rb.AddForce(
-                moveDirection.normalized * moveSpeed * 10f * airMultiplier,
-                ForceMode.Force
-            );
+        else{
+            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier,ForceMode.Force);
+        }
     }
 
     private void SpeedControl()
@@ -277,7 +298,7 @@ public class PlayerController : MonoBehaviour
 
     public bool ShowHint(){
         int layerMask = LayerMask.GetMask("Interactable");
-        isInteract = Physics.Raycast(new Ray(transform.position, orientation.forward), out hit, playerTakeRange, layerMask);
+        isInteract = Physics.Raycast(new Ray(cameraVector.transform.position, cameraVector.transform.forward), out hit, playerTakeRange, layerMask);
         if(isInteract)
             return true;
         else 
@@ -286,8 +307,9 @@ public class PlayerController : MonoBehaviour
 
     private void GetInfoItems(){
         int layerMask = LayerMask.GetMask("Interactable");
-        isInteract = Physics.Raycast(new Ray(transform.position, orientation.forward), out hit, playerTakeRange, layerMask);
+        isInteract = Physics.Raycast(new Ray(cameraVector.transform.position, cameraVector.transform.forward), out hit, playerTakeRange, layerMask);
         if(isInteract && Input.GetKeyDown(interactKey)){
+            Debug.Log(isInteract);
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null){
                 interactable.Interact();
