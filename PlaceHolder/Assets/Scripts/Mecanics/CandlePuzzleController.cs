@@ -13,7 +13,7 @@ public class CandlePuzzleController : MonoBehaviour
         correctOrder = new List<int>() { 1, 2, 3 };
         if (correctOrder.Count != candles.Count)
         {
-            Debug.LogError("Количество элементов в correctOrder и candles должно совпадать!");
+            Debug.Log("Количество элементов в correctOrder и candles должно совпадать!");
         }
     }
 

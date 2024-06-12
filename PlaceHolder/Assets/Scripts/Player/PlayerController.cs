@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour
     RaycastHit hit;
 
     Rigidbody rb;
+    bool isInteract;
 
     private void Start()
     {
@@ -271,7 +272,8 @@ public class PlayerController : MonoBehaviour
     }
 
     public bool ShowHint(){
-        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, Interactable);
+        int layerMask = LayerMask.GetMask("Interactable");
+        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, layerMask);
         if(isInteract)
             return true;
         else 
@@ -279,7 +281,8 @@ public class PlayerController : MonoBehaviour
     }
 
     private void GetInfoItems(){
-        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, Interactable);
+        int layerMask = LayerMask.GetMask("Interactable");
+        isInteract = Physics.Raycast(new Ray(transform.position, transform.forward), out hit, playerTakeRange, layerMask);
         if(isInteract && Input.GetKeyDown(interactKey)){
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null){
