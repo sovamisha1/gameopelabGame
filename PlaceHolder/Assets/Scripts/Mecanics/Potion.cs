@@ -19,6 +19,9 @@ public class Potion : MonoBehaviour
 
     void Start()
     {
+        isHoldingPotion = false;
+        isNotEmptyPotion = true;
+        isDrinkingPotion = false;
         if (mainCamera == null)
             mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (potion == null)
@@ -36,21 +39,21 @@ public class Potion : MonoBehaviour
         if (potion != null && mainCamera != null)
         {
             potion.transform.SetParent(mainCamera.transform, false);
-            Positionpotion();
         }
-
-        foreach (Transform child in potion.transform)
-        {
-            child.gameObject.GetComponent<Renderer>().enabled = isHoldingPotion;
-        }
-
         potionRenderer = potion.GetComponent<Renderer>();
         potionRenderer.enabled = isHoldingPotion;
         RefilPotion();
+        TMPMethod();
+    }
+
+    void TMPMethod()
+    {
+        HideAllChildren(potion, isHoldingPotion);
     }
 
     void Update()
     {
+        HideAndShowFirstChild(false);
         if (isHoldingPotion)
         {
             Positionpotion();
