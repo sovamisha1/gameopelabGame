@@ -13,13 +13,9 @@ public class Potion : MonoBehaviour
 
     private Animator animator;
 
-    private bool isHoldingPotion = true;
+    private bool isHoldingPotion = false;
     private bool isNotEmptyPotion = true;
     private bool isDrinkingPotion = false;
-    private bool canDrink = true;
-    private bool takePotion = true;
-    private bool canSwitch = true;
-    private bool potionIsNotEmpty = true;
 
     void Start()
     {
@@ -45,44 +41,25 @@ public class Potion : MonoBehaviour
 
         foreach (Transform child in potion.transform)
         {
-            child.gameObject.GetComponent<Renderer>().enabled = takePotion;
+            child.gameObject.GetComponent<Renderer>().enabled = isHoldingPotion;
         }
 
         potionRenderer = potion.GetComponent<Renderer>();
-        potionRenderer.enabled = takePotion;
+        potionRenderer.enabled = isHoldingPotion;
         RefilPotion();
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("TakePotion")) && canSwitch)
-        {
-            SwitchPotion();
-        }
-
-        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("DrinkPotion")))
-        {
-            if (canDrink && potionIsNotEmpty)
-            {
-                StartCoroutine(DrinkPotion());
-            }
-        }
-        if (canSwitch)
+        if (isHoldingPotion)
         {
             Positionpotion();
-        }
-        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("RefilPotion")))
-        {
-            if (!potionIsNotEmpty && potion.GetComponent<Renderer>().enabled == true)
-            {
-                RefilPotion();
-            }
         }
     }
 
     IEnumerator DrinkPotion()
     {
-        canSwitch = false;
+        isDrinkingPotion = true;
         animator.SetBool("isStartedDrinking", true);
         HideAndShowFirstChild(false);
         SwitchPotionModel(gameObject, opendPotionModel);
@@ -95,27 +72,41 @@ public class Potion : MonoBehaviour
         yield return new WaitForSeconds(1.25f);
         animator.SetBool("isFinishedDrinking", false);
         Positionpotion();
-        canSwitch = true;
-        potionIsNotEmpty = false;
+        isNotEmptyPotion = false;
+        isDrinkingPotion = false;
         yield break;
     }
 
-    void RefilPotion()
+    public void RefilPotion()
     {
         SwitchPotionModel(gameObject, fullPotionModel);
-        HideAndShowFirstChild(true);
-        HideAndSecondFirstChild(true);
-        potionIsNotEmpty = true;
+        HideAllChildren(gameObject, true);
+        isNotEmptyPotion = true;
+    }
+
+    public void TryToDrink()
+    {
+        if (isHoldingPotion && isNotEmptyPotion && !isDrinkingPotion)
+            DrinkPotion();
+        else
+        {
+            Debug.Log("Держу зелье: " + isHoldingPotion);
+            Debug.Log("Зелье пустое: " + isNotEmptyPotion);
+            Debug.Log("Уже пью: " + isDrinkingPotion);
+        }
     }
 
     public void SelectPotion(bool toDo)
     {
         isHoldingPotion = toDo;
         potionRenderer.enabled = toDo;
-        HideAllChildren(gameObject, toDo);
+        if (!isNotEmptyPotion)
+            HideAllChildren(gameObject, toDo);
+        else
+            HideAndShowFirstChild(toDo);
     }
 
-    public void HideAllChildren(GameObject parentObject, bool toDo)
+    private void HideAllChildren(GameObject parentObject, bool toDo)
     {
         foreach (Transform child in parentObject.transform)
         {
@@ -131,16 +122,6 @@ public class Potion : MonoBehaviour
         }
     }
 
-    void SwitchPotion()
-    {
-        canDrink = !canDrink;
-        takePotion = !takePotion;
-        if (potionIsNotEmpty)
-            HideAndShowFirstChild(takePotion);
-        HideAndSecondFirstChild(takePotion);
-        potion.GetComponent<Renderer>().enabled = takePotion;
-    }
-
     void SwitchPotionModel(GameObject fromModel, GameObject toModel)
     {
         MeshFilter mf1 = fromModel.GetComponent<MeshFilter>();
@@ -152,16 +133,10 @@ public class Potion : MonoBehaviour
         mr1.materials = mr2.materials;
     }
 
-    void HideAndShowFirstChild(bool toDo)
+    private void HideAndShowFirstChild(bool toDo)
     {
         Transform firstChild = transform.GetChild(0);
         firstChild.gameObject.GetComponent<Renderer>().enabled = toDo;
-    }
-
-    void HideAndSecondFirstChild(bool toDo)
-    {
-        Transform secondChild = transform.GetChild(1);
-        secondChild.gameObject.GetComponent<Renderer>().enabled = toDo;
     }
 
     void Positionpotion()
