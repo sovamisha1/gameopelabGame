@@ -34,6 +34,9 @@ public class PlayerController : MonoBehaviour
     private KeyCode runKey; //=  InputManager.instance.GetKeyForAction("Run"); //KeyCode.LeftShift;
     private KeyCode crouchKey; //= InputManager.instance.GetKeyForAction("Crouch"); //KeyCode.LeftControl;
     private KeyCode interactKey; //= InputManager.instance.GetKeyForAction("Interact"); //KeyCode.LeftControl;
+    private KeyCode oneKey; //= InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
+    private KeyCode twoKey; // = InputManager.instance.GetKeyForAction("Interact2"); //KeyCode.LeftControl;
+    private KeyCode useKey; //= InputManager.instance.GetKeyForAction("UseItem"); //KeyCode.LeftControl;
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -49,10 +52,14 @@ public class PlayerController : MonoBehaviour
     float stamina;
     float hp;
     float playerTakeRange;
+    float inHand; //0 - ничего, 1 - Posion, 2- Staff
 
     Vector3 moveDirection;
     RaycastHit hit;
     public Camera cameraVector;
+    private Inventory inventory;
+    private Potion potion;
+    private MagicStaff magicStaff;
 
     Rigidbody rb;
     bool isInteract;
@@ -69,16 +76,25 @@ public class PlayerController : MonoBehaviour
         coefCrouchSpeed = 0.7f;
         staminaRedZone = 30f;
         playerTakeRange = playerHeight * 1.25f;
+        inHand = 0f;
+        
 
         jumpKey = InputManager.instance.GetKeyForAction("Jump");
         runKey = InputManager.instance.GetKeyForAction("Run");
         crouchKey = InputManager.instance.GetKeyForAction("Crouch");
         interactKey = InputManager.instance.GetKeyForAction("Interact");
+        oneKey = InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
+        twoKey = InputManager.instance.GetKeyForAction("Interact2");
+        useKey = InputManager.instance.GetKeyForAction("UseItem");
+        
 
         if (cameraVector == null)
             cameraVector = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (orientation == null)
             orientation = GameObject.Find("Orientation").GetComponent<Transform>();
+        inventory = FindObjectOfType<Inventory>();
+        potion = FindObjectOfType<Potion>();
+        magicStaff = FindObjectOfType<MagicStaff>();
 
         dead = false;
         crouchActiv = false;
@@ -92,18 +108,8 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         // ground check
-        grounded = Physics.Raycast(
-            transform.position,
-            Vector3.down,
-            playerHeight * 0.5f + 0.3f,
-            Ground
-        );
-        stairssteped = Physics.Raycast(
-            transform.position,
-            Vector3.down,
-            playerHeight * 0.5f + 0.3f,
-            StairsStep
-        );
+        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, Ground);
+        stairssteped = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, StairsStep);
         moveAndStep = (
             !(
                 Input.GetKey(KeyCode.W)
@@ -154,8 +160,11 @@ public class PlayerController : MonoBehaviour
 
     private void MyInput()
     {
+        ItemsManager();
+        UseItems();
         ShowHint();
         GetInfoItems();
+        
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
@@ -200,7 +209,6 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKeyDown(crouchKey) && grounded && crouchActiv)
             StandUp();
 
-        //isCrouch();
     }
 
     private void MovePlayer()
@@ -341,4 +349,51 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    private void ItemsManager(){
+        //inventory.DoesContainItem("Посох Мага")
+        //inventory.DoesContainItem("Зелье Лечения")
+        if (Input.GetKeyDown(oneKey) && inventory.DoesContainItem("Зелье Лечения")){
+            if(inHand == 0){
+                potion.SelectPotion(true);
+                inHand = 1;
+            }
+            else if(inHand == 2){
+                magicStaff.SelectStaff(false);
+                potion.SelectPotion(true);
+                inHand = 1;
+            }
+            else{
+                potion.SelectPotion(false);
+                inHand = 0;
+            }
+        }
+        else if(Input.GetKeyDown(twoKey) && inventory.DoesContainItem("Посох Мага")){
+            if(inHand == 0){
+                magicStaff.SelectStaff(true);
+                inHand = 2;
+            }
+            else if(inHand == 1){
+                potion.SelectPotion(false);
+                magicStaff.SelectStaff(true);
+                inHand = 2;
+            }
+            else{
+                magicStaff.SelectStaff(false);
+                inHand = 0;
+            }
+        }  
+    }
+
+    private void UseItems(){
+        if(Input.GetKeyDown(useKey)){
+            if(inHand == 1){
+                potion.TryToDrink();
+            }
+            else if(inHand == 2){
+                magicStaff.TryToAttack();
+            }
+        }
+    }
+
 }

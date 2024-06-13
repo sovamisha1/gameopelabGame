@@ -20,7 +20,7 @@ public class MagicStaff : MonoBehaviour
         HideAllChildren(gameObject, toDo);
     }
 
-    public void Attack()
+    public void TryToAttack()
     {
         if (isHoldingStaff && !isAtacking)
         {

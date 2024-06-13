@@ -27,8 +27,9 @@ public class InputManager : MonoBehaviour
         keyBindings["Jump"] = KeyCode.Space;
         keyBindings["Recharge"] = KeyCode.R;
         keyBindings["Run"] = KeyCode.LeftShift;
-        keyBindings["TakePotion"] = KeyCode.Alpha1;
-        keyBindings["DrinkPotion"] = KeyCode.Mouse0;
+        keyBindings["Interact1"] = KeyCode.Alpha1;
+        keyBindings["Interact2"] = KeyCode.Alpha2;
+        keyBindings["UseItem"] = KeyCode.Mouse0;
         keyBindings["RefilPotion"] = KeyCode.N;
         keyBindings["Crouch"] = KeyCode.LeftControl;
         keyBindings["Interact"] = KeyCode.E;
