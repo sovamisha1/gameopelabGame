@@ -9,9 +9,9 @@ public class Tourch : Interactable
     public override void Interact()
     {
         if (isLit)
-            LitTourch();
-        else
             Extinguish();
+        else
+            LitTourch();
     }
 
     private void LitTourch()

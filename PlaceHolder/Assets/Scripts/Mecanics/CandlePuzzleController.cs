@@ -10,18 +10,26 @@ public class CandlePuzzleController : MonoBehaviour
 
     void Start()
     {
-        correctOrder = new List<int>() { 1, 2, 3 };
+        foreach (Transform child in transform)
+        {
+            CandleForPuzzle candle = child.GetComponent<CandleForPuzzle>();
+            if (candle != null)
+            {
+                candles.Add(candle);
+            }
+        }   
+        correctOrder = new List<int>() { 0, 1, 2 };
         if (correctOrder.Count != candles.Count)
         {
             Debug.Log("Количество элементов в correctOrder и candles должно совпадать!");
         }
     }
 
-    public void LightCandle(int torchIndex)
+    public void LightCandle(int candleIndex)
     {
-        if (torchIndex == correctOrder[currentIndex])
+        if (candleIndex == correctOrder[currentIndex])
         {
-            candles[torchIndex].LitCandle();
+            candles[candleIndex].LitCandle();
             currentIndex++;
             Debug.Log("Правильно");
 
