@@ -3,14 +3,19 @@ using System.Collections;
 
 public class Potion : MonoBehaviour
 {
-    public GameObject potion;
     public Camera mainCamera;
+    public GameObject potion;
     public GameObject emptyPotionModel;
     public GameObject opendPotionModel;
     public GameObject fullPotionModel;
+    public Renderer potionRenderer;
     public PlayerController playerController;
 
     private Animator animator;
+
+    private bool isHoldingPotion = true;
+    private bool isNotEmptyPotion = true;
+    private bool isDrinkingPotion = false;
     private bool canDrink = true;
     private bool takePotion = true;
     private bool canSwitch = true;
@@ -43,7 +48,8 @@ public class Potion : MonoBehaviour
             child.gameObject.GetComponent<Renderer>().enabled = takePotion;
         }
 
-        potion.GetComponent<Renderer>().enabled = takePotion;
+        potionRenderer = potion.GetComponent<Renderer>();
+        potionRenderer.enabled = takePotion;
         RefilPotion();
     }
 
@@ -100,6 +106,29 @@ public class Potion : MonoBehaviour
         HideAndShowFirstChild(true);
         HideAndSecondFirstChild(true);
         potionIsNotEmpty = true;
+    }
+
+    public void SelectPotion(bool toDo)
+    {
+        isHoldingPotion = toDo;
+        potionRenderer.enabled = toDo;
+        HideAllChildren(gameObject, toDo);
+    }
+
+    public void HideAllChildren(GameObject parentObject, bool toDo)
+    {
+        foreach (Transform child in parentObject.transform)
+        {
+            Renderer childRenderer = child.gameObject.GetComponent<Renderer>();
+            if (childRenderer != null)
+            {
+                childRenderer.enabled = toDo;
+            }
+            if (child.childCount > 0)
+            {
+                HideAllChildren(child.gameObject, toDo);
+            }
+        }
     }
 
     void SwitchPotion()
