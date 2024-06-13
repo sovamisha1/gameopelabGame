@@ -22,6 +22,11 @@ public class Inventory : MonoBehaviour
         return inventory.ContainsKey(item);
     }
 
+    public bool DoesContainItem(string item, int howMany)
+    {
+        return inventory.TryGetValue(item, out int count) && count == howMany;
+    }
+
     public bool RemoveItem(string item)
     {
         if (inventory.ContainsKey(item))

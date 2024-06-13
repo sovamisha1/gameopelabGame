@@ -53,7 +53,6 @@ public class Potion : MonoBehaviour
 
     void Update()
     {
-        HideAndShowFirstChild(false);
         if (isHoldingPotion)
         {
             Positionpotion();
