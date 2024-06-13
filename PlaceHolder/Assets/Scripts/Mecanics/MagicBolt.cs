@@ -9,7 +9,9 @@ public class MagicBolt : MonoBehaviour
         if (other.CompareTag("Boss"))
         {
             other.GetComponent<Boss>().TakeDamage(25f);
+            Destroy(gameObject);
         }
-        Destroy(gameObject);
+        else if (other.CompareTag("Player"))
+            return;
     }
 }

@@ -75,10 +75,6 @@ public class MagicStaff : MonoBehaviour
         {
             projectileRigidbody.velocity = direction * projectileSpeed;
         }
-        else
-        {
-            Debug.LogError("No Rigidbody found on magicProjectilePrefab instance.");
-        }
 
         Destroy(projectileInstance, projectileLifetime);
     }
