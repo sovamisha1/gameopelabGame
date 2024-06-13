@@ -137,7 +137,7 @@ public class Potion : MonoBehaviour
 
     void Positionpotion()
     {
-        Vector3 localPosition = new Vector3(-0.95f, -0.6f, 1.4f);
+        Vector3 localPosition = new Vector3(-0.2f, -0.15f, 0.34f);
         potion.transform.localPosition = localPosition;
         potion.transform.localRotation = Quaternion.Euler(-90, 0, 0);
     }

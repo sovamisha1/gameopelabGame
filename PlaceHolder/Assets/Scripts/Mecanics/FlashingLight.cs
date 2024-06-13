@@ -134,7 +134,7 @@ public class FlashingLight : MonoBehaviour
 
     void Positionpotion()
     {
-        Vector3 localPosition = new Vector3(0.95f, -0.6f, 1.4f);
+        Vector3 localPosition = new Vector3(0.2f, -0.15f, 0.34f);
         candle.transform.localPosition = localPosition;
         candle.transform.localRotation = Quaternion.Euler(0, 0, 0);
     }
