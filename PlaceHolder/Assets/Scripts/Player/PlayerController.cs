@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     private KeyCode oneKey; //= InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
     private KeyCode twoKey; // = InputManager.instance.GetKeyForAction("Interact2"); //KeyCode.LeftControl;
     private KeyCode useKey; //= InputManager.instance.GetKeyForAction("UseItem"); //KeyCode.LeftControl;
+    private KeyCode refilKey; //  = InputManager.instance.GetKeyForAction(RefilPotion); 
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -44,6 +45,7 @@ public class PlayerController : MonoBehaviour
     public LayerMask StairsStep;
     bool grounded;
     bool stairssteped;
+    bool eventComplite;
 
     public Transform orientation;
 
@@ -60,17 +62,20 @@ public class PlayerController : MonoBehaviour
     private Inventory inventory;
     private Potion potion;
     private MagicStaff magicStaff;
+    private Transform spawnPoint;
+    private GameObject deathZone;
 
     Rigidbody rb;
     bool isInteract;
     bool moveAndStep;
+    bool inDeathZone;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
-        hp = 50f;
+        hp = 100f;
         stamina = 100f;
         coefRunSpeed = 1.75f;
         coefCrouchSpeed = 0.7f;
@@ -86,12 +91,20 @@ public class PlayerController : MonoBehaviour
         oneKey = InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
         twoKey = InputManager.instance.GetKeyForAction("Interact2");
         useKey = InputManager.instance.GetKeyForAction("UseItem");
+        refilKey = InputManager.instance.GetKeyForAction("RefilPotion"); 
         
 
         if (cameraVector == null)
             cameraVector = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (orientation == null)
             orientation = GameObject.Find("Orientation").GetComponent<Transform>();
+        if (spawnPoint == null)
+            spawnPoint = GameObject.Find("SavePoint").GetComponent<Transform>();
+        if (deathZone == null)
+            deathZone = GameObject.Find("DeathZone");
+
+        //spawnPoint.position = 
+
         inventory = FindObjectOfType<Inventory>();
         potion = FindObjectOfType<Potion>();
         magicStaff = FindObjectOfType<MagicStaff>();
@@ -102,12 +115,14 @@ public class PlayerController : MonoBehaviour
         running = false;
         penaltyStamina = false;
         isInteract = false;
+        eventComplite = false;
+        inDeathZone = false;
         //moveSpeed = baseMoveSpeed;
     }
 
     private void Update()
     {
-        // ground check
+        _AdminKill();
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, Ground);
         stairssteped = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, StairsStep);
         moveAndStep = (
@@ -160,6 +175,8 @@ public class PlayerController : MonoBehaviour
 
     private void MyInput()
     {
+        if(dead)
+            Death();
         ItemsManager();
         UseItems();
         ShowHint();
@@ -245,9 +262,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        // reset y velocity
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
@@ -341,18 +356,21 @@ public class PlayerController : MonoBehaviour
         );
         if (isInteract && Input.GetKeyDown(interactKey))
         {
-            //Debug.Log(isInteract);
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null)
             {
                 interactable.Interact();
+                eventComplite = interactable.IsImportant();
+                if (eventComplite){
+                    spawnPoint.position = rb.transform.position;
+                }
+                eventComplite = false;
+
             }
         }
     }
 
     private void ItemsManager(){
-        //inventory.DoesContainItem("Посох Мага")
-        //inventory.DoesContainItem("Зелье Лечения")
         if (Input.GetKeyDown(oneKey) && inventory.DoesContainItem("Зелье Лечения")){
             if(inHand == 0){
                 potion.SelectPotion(true);
@@ -396,4 +414,35 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void _RefilPotion(){
+        if(Input.GetKeyDown(refilKey) && inHand == 1){
+            potion.RefilPotion();
+        }
+    }
+
+    private void _AdminKill(){
+        if(Input.GetKeyDown(KeyCode.L)){
+            Death();
+        }
+    }
+
+    public void Death(){
+
+        StandUp();
+        rb.transform.position = spawnPoint.position;
+        
+
+        hp = 100f;
+        stamina = 100f;
+
+        dead = false;
+        crouchActiv = false;
+        readyToJump = true;
+        running = false;
+        penaltyStamina = false;
+        isInteract = false;
+        eventComplite = false;
+        inDeathZone = false;
+    
+    }
 }
