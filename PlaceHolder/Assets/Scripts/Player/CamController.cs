@@ -13,6 +13,8 @@ public class CamController : MonoBehaviour
 
     private void Start()
     {
+        if (orientation == null)
+            orientation = GameObject.Find("Orientation").GetComponent<Transform>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false; //false
     }

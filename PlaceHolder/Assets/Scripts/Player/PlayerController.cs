@@ -53,6 +53,8 @@ public class PlayerController : MonoBehaviour
     Vector3 moveDirection;
     RaycastHit hit;
     public Camera cameraVector;
+    
+
 
     Rigidbody rb;
     bool isInteract;
@@ -77,6 +79,9 @@ public class PlayerController : MonoBehaviour
 
         if (cameraVector == null)
             cameraVector = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
+        if (orientation == null)
+            orientation = GameObject.Find("Orientation").GetComponent<Transform>();
+        
 
         dead = false;
         crouchActiv = false;
@@ -309,18 +314,13 @@ public class PlayerController : MonoBehaviour
         int layerMask = LayerMask.GetMask("Interactable");
         isInteract = Physics.Raycast(new Ray(cameraVector.transform.position, cameraVector.transform.forward), out hit, playerTakeRange, layerMask);
         if(isInteract && Input.GetKeyDown(interactKey)){
-            Debug.Log(isInteract);
+            //Debug.Log(isInteract);
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null){
                 interactable.Interact();
             }
         }
     }
-    
-
-
-
-
 }
 
 
