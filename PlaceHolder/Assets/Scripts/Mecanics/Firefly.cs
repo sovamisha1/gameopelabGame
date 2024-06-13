@@ -19,6 +19,12 @@ public class Firefly : Interactable
             waypoints.Add(child);
         }
 
+        // Unparent the waypoints so they don't move with the firefly
+        foreach (Transform waypoint in waypoints)
+        {
+            waypoint.parent = null;
+        }
+
         if (waypoints.Count > 0)
         {
             currentWaypointIndex = 0;
@@ -52,6 +58,11 @@ public class Firefly : Interactable
             inventory.RemoveItem("Светлячок", 5);
             inventory.AddItem("Банка Cветлячков");
         }
+        foreach (Transform waypoint in waypoints)
+        {
+            Destroy(waypoint.gameObject);
+        }
+
         Destroy(gameObject);
     }
 }

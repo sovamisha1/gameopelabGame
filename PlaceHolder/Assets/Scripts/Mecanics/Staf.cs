@@ -16,4 +16,9 @@ public class Staf : Interactable
         inventory.AddItem("Посох Мага");
         Destroy(gameObject);
     }
+
+    public override bool IsImportant()
+    {
+        return true;
+    }
 }

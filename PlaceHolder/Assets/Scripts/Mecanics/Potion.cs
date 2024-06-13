@@ -43,12 +43,8 @@ public class Potion : MonoBehaviour
         potionRenderer = potion.GetComponent<Renderer>();
         potionRenderer.enabled = isHoldingPotion;
         RefilPotion();
-        TMPMethod();
-    }
-
-    void TMPMethod()
-    {
-        HideAllChildren(potion, isHoldingPotion);
+        HideAndShowFirstChild(false);
+        HideAndShowSecondChild(false);
     }
 
     void Update()
@@ -82,30 +78,38 @@ public class Potion : MonoBehaviour
     public void RefilPotion()
     {
         SwitchPotionModel(gameObject, fullPotionModel);
-        HideAllChildren(gameObject, true);
+        HideAndShowFirstChild(true);
+        HideAndShowSecondChild(true);
         isNotEmptyPotion = true;
     }
 
     public void TryToDrink()
     {
-        if (isHoldingPotion && isNotEmptyPotion && !isDrinkingPotion)
-            DrinkPotion();
+        if (isHoldingPotion && isNotEmptyPotion && isDrinkingPotion == false)
+            StartCoroutine(DrinkPotion());
         else
         {
             Debug.Log("Держу зелье: " + isHoldingPotion);
-            Debug.Log("Зелье пустое: " + isNotEmptyPotion);
+            Debug.Log("Зелье не пустое: " + isNotEmptyPotion);
             Debug.Log("Уже пью: " + isDrinkingPotion);
         }
     }
 
     public void SelectPotion(bool toDo)
     {
+        if (isDrinkingPotion)
+            return;
+        if (isNotEmptyPotion)
+        {
+            HideAndShowSecondChild(toDo);
+            HideAndShowFirstChild(toDo);
+        }
+        else
+        {
+            HideAndShowSecondChild(toDo);
+        }
         isHoldingPotion = toDo;
         potionRenderer.enabled = toDo;
-        if (!isNotEmptyPotion)
-            HideAllChildren(gameObject, toDo);
-        else
-            HideAndShowFirstChild(toDo);
     }
 
     private void HideAllChildren(GameObject parentObject, bool toDo)
@@ -138,6 +142,12 @@ public class Potion : MonoBehaviour
     private void HideAndShowFirstChild(bool toDo)
     {
         Transform firstChild = transform.GetChild(0);
+        firstChild.gameObject.GetComponent<Renderer>().enabled = toDo;
+    }
+
+    private void HideAndShowSecondChild(bool toDo)
+    {
+        Transform firstChild = transform.GetChild(1);
         firstChild.gameObject.GetComponent<Renderer>().enabled = toDo;
     }
 

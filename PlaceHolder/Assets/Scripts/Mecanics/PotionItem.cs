@@ -16,4 +16,9 @@ public class PotionItem : Interactable
         inventory.AddItem("Зелье Лечения");
         Destroy(gameObject);
     }
+
+    public override bool IsImportant()
+    {
+        return true;
+    }
 }
