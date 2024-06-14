@@ -53,11 +53,7 @@ public class Firefly : Interactable
     public override void Interact()
     {
         inventory.AddItem("Светлячок");
-        if (inventory.DoesContainItem("Светлячок", 5))
-        {
-            inventory.RemoveItem("Светлячок", 5);
-            inventory.AddItem("Банка Cветлячков");
-        }
+
         foreach (Transform waypoint in waypoints)
         {
             Destroy(waypoint.gameObject);
