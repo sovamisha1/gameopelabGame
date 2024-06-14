@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class LettersPuzzle : Interactable
@@ -15,6 +16,7 @@ public class LettersPuzzle : Interactable
     private PlayerController playerController;
     private CamController camController;
     private MoveCamera moveCamera;
+    private Camera eventLettersCamera;
 
     public override void Interact()
     {
@@ -36,6 +38,7 @@ public class LettersPuzzle : Interactable
         playerController = FindObjectOfType<PlayerController>();
         moveCamera = FindObjectOfType<MoveCamera>();
         camController = FindObjectOfType<CamController>();
+        eventLettersCamera = GameObject.Find("CameraLetters").GetComponent<Camera>();
     }
 
     // Обработчик кнопки "Готово"
@@ -99,9 +102,10 @@ public class LettersPuzzle : Interactable
     {
         if (playerController != null)
         {
+            playerController.StopPlayer(false, eventLettersCamera); // eventLettersCamera - тип Camera
             playerController.enabled = false;
-            camController.enabled = false;
-            moveCamera.enabled = false;
+            //camController.enabled = false; //main камера отключается в StopPlayer
+            //moveCamera.enabled = false;
         }
     }
 
@@ -110,9 +114,10 @@ public class LettersPuzzle : Interactable
     {
         if (playerController != null)
         {
+            playerController.StopPlayer(true, eventLettersCamera); // eventLettersCamera - тип Camera
             playerController.enabled = true;
-            camController.enabled = true;
-            moveCamera.enabled = true;
+            //camController.enabled = true; //main камера включается в StopPlayer
+            //moveCamera.enabled = true;
         }
     }
 }

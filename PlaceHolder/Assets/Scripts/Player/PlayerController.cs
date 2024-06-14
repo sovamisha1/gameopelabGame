@@ -20,6 +20,11 @@ public class PlayerController : MonoBehaviour
     bool penaltyStamina;
     bool crouchActiv;
     bool dead;
+    bool miniGameActive;
+    bool isInteract;
+    bool moveAndStep;
+    bool inDeathZone;
+    bool eventComplite;
 
     [HideInInspector]
     public float moveSpeed;
@@ -45,7 +50,6 @@ public class PlayerController : MonoBehaviour
     public LayerMask StairsStep;
     bool grounded;
     bool stairssteped;
-    bool eventComplite;
 
     public Transform orientation;
 
@@ -64,11 +68,9 @@ public class PlayerController : MonoBehaviour
     private MagicStaff magicStaff;
     private Transform spawnPoint;
     private GameObject deathZone;
+    private GameObject cameraPoint;
 
     Rigidbody rb;
-    bool isInteract;
-    bool moveAndStep;
-    bool inDeathZone;
 
     private void Start()
     {
@@ -102,6 +104,8 @@ public class PlayerController : MonoBehaviour
             spawnPoint = GameObject.Find("SavePoint").GetComponent<Transform>();
         if (deathZone == null)
             deathZone = GameObject.Find("DeathZone");
+        if (cameraPoint == null)
+            cameraPoint = GameObject.Find("СameraPos");
 
         //spawnPoint.position = 
 
@@ -117,6 +121,7 @@ public class PlayerController : MonoBehaviour
         isInteract = false;
         eventComplite = false;
         inDeathZone = false;
+        miniGameActive = false;
         //moveSpeed = baseMoveSpeed;
     }
 
@@ -137,8 +142,8 @@ public class PlayerController : MonoBehaviour
                 || Input.GetKey(KeyCode.LeftArrow)
             ) && stairssteped
         );
-
-        MyInput();
+        if(!miniGameActive)
+            MyInput();
         if (running)
         {
             stamina -= 0.03f;
@@ -422,9 +427,25 @@ public class PlayerController : MonoBehaviour
 
     private void _AdminKill(){
         if(Input.GetKeyDown(KeyCode.L)){
-            Death();
+            //StopPlayer(true, spawnPoint.transform);
         }
     }
+
+    public void StopPlayer(bool playerMode, Camera eventCamera){
+        if(playerMode){
+            miniGameActive = true;
+            cameraVector.enabled = false;
+            eventCamera.enabled = true;
+
+        }
+        else{
+            miniGameActive = false;
+            eventCamera.enabled = false;
+            cameraVector.enabled = true;
+        }
+    }
+
+    
 
     public void Death(){
 
@@ -443,6 +464,7 @@ public class PlayerController : MonoBehaviour
         isInteract = false;
         eventComplite = false;
         inDeathZone = false;
+        miniGameActive = false;
     
     }
 }

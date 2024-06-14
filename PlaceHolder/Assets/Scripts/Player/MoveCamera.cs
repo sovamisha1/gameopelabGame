@@ -12,8 +12,8 @@ public class MoveCamera : MonoBehaviour
             cameraPos = GameObject.Find("CameraPos").GetComponent<Transform>();
     }
 
-    private void Update()
-    {
+    private void Update(){
         transform.position = cameraPos.position;
     }
+
 }
