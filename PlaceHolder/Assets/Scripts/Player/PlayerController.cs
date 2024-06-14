@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector]
     public float coefCrouchSpeed;
+    private float speedUpDown;
 
     private KeyCode jumpKey; // = InputManager.instance.GetKeyForAction("Jump"); // KeyCode.Space;
     private KeyCode runKey; //=  InputManager.instance.GetKeyForAction("Run"); //KeyCode.LeftShift;
@@ -48,8 +49,10 @@ public class PlayerController : MonoBehaviour
     public float playerHeight;
     public LayerMask Ground;
     public LayerMask StairsStep;
+    public LayerMask Ladder;
     bool grounded;
     bool stairssteped;
+    bool isLadder;
 
     public Transform orientation;
 
@@ -62,6 +65,7 @@ public class PlayerController : MonoBehaviour
 
     Vector3 moveDirection;
     RaycastHit hit;
+    AudioSource audioSource;
     public Camera cameraVector;
     private Inventory inventory;
     private Potion potion;
@@ -84,6 +88,8 @@ public class PlayerController : MonoBehaviour
         staminaRedZone = 30f;
         playerTakeRange = playerHeight * 1.25f;
         inHand = 0f;
+        speedUpDown = 0.02f;
+        
         
 
         jumpKey = InputManager.instance.GetKeyForAction("Jump");
@@ -105,7 +111,9 @@ public class PlayerController : MonoBehaviour
         if (deathZone == null)
             deathZone = GameObject.Find("DeathZone");
         if (cameraPoint == null)
-            cameraPoint = GameObject.Find("СameraPos");
+            cameraPoint = GameObject.Find("СameraPos"); 
+        audioSource = GetComponent<AudioSource>();  
+
 
         //spawnPoint.position = 
 
@@ -122,12 +130,13 @@ public class PlayerController : MonoBehaviour
         eventComplite = false;
         inDeathZone = false;
         miniGameActive = false;
+        isLadder = false;
         //moveSpeed = baseMoveSpeed;
     }
 
     private void Update()
     {
-        _AdminKill();
+        //_AdminKill();
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, Ground);
         stairssteped = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, StairsStep);
         moveAndStep = (
@@ -186,6 +195,7 @@ public class PlayerController : MonoBehaviour
         UseItems();
         ShowHint();
         GetInfoItems();
+        UseLadder();
         
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
@@ -233,10 +243,13 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    //=====БЛОК ПЕРЕМЕЩЕНИЯ ПЕРСОНАЖА====
+
     private void MovePlayer()
     {
         // calculate movement direction
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+    
 
         // on ground
         if (grounded || stairssteped)
@@ -308,6 +321,23 @@ public class PlayerController : MonoBehaviour
         crouchActiv = false;
     }
 
+    private void UseLadder()
+    {
+        isLadder = Physics.Raycast(
+            new Ray(cameraVector.transform.position, orientation.transform.forward),
+            out hit,
+            0.75f,
+            Ladder
+        );
+
+        if (isLadder && Input.GetKey(interactKey)){
+            rb.transform.position += Vector3.up * speedUpDown;
+        }
+    }
+
+    
+    //=====БЛОК ПАРАМЕТРЫ ПЕРСОНАЖА====
+
     public float GetParametrs(string nameParametrs)
     {
         switch (nameParametrs)
@@ -334,6 +364,8 @@ public class PlayerController : MonoBehaviour
         if (hp < 0)
             dead = true;
     }
+
+    //=====БЛОК ВЗАИМОДЕЙСТВИЯ С ПРЕДМЕТАМИ====
 
     public bool ShowHint()
     {
@@ -425,11 +457,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void _AdminKill(){
+    //=====БЛОК РАБОТЫ С САУНДОМ ПЕРСОНАЖА====
+
+    public void PlaySound(AudioClip audio){
+        audioSource.PlayOneShot(audio);
+    }
+
+
+    //=====БЛОК ВМЕШАТЕЛЬСТВА В ЖИЗНЬ ПЕРСОНАЖА====
+
+    /*private void _AdminKill(){
         if(Input.GetKeyDown(KeyCode.L)){
             //StopPlayer(true, spawnPoint.transform);
         }
-    }
+    } */
 
     public void StopPlayer(bool playerMode, Camera eventCamera){
         if(playerMode){
@@ -444,8 +485,6 @@ public class PlayerController : MonoBehaviour
             cameraVector.enabled = true;
         }
     }
-
-    
 
     public void Death(){
 
@@ -465,6 +504,6 @@ public class PlayerController : MonoBehaviour
         eventComplite = false;
         inDeathZone = false;
         miniGameActive = false;
-    
+        isLadder = false;
     }
 }
