@@ -5,21 +5,20 @@ using UnityEngine.UI;
 
 public class LettersPuzzle : Interactable
 {
-    public InputField[] letterInputs; // массив InputField для ввода букв
-    public Button submitButton; // кнопка "Готово"
-    public Button exitButton; // кнопка "Выход"
-    public GameObject puzzleUI; // UI канвас для мини-игры
+    public InputField[] letterInputs;
+    public Button submitButton;
+    public Button exitButton;
+    public GameObject puzzleUI;
 
-    private string solution = "fate"; // правильный ответ
+    private string solution = "fate";
 
     private PlayerController playerController;
     private CamController camController;
     private MoveCamera moveCamera;
 
-    // Метод для интеракции, изначально активируем мини-игру
     public override void Interact()
     {
-        puzzleUI.SetActive(true); // активируем UI канвас
+        puzzleUI.SetActive(true);
         EnableCursor(); // Включаем курсор
         DisablePlayerControl(); // Отключаем управление игроком
     }
