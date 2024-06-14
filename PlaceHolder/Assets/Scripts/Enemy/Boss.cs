@@ -9,17 +9,18 @@ public class Boss : MonoBehaviour
     private GameObject player;
     private int currentWaypointIndex;
     private float speed;
+    private float attackSpeed;
     private bool isWaiting = false;
     private float waitTime = 1f;
 
     public GameObject projectilePrefab;
-    public float minLaunchInterval = 2f;
-    public float maxLaunchInterval = 5f;
+    public float launchInterval = 0.5f;
 
     void Start()
     {
         hp = 100f;
         speed = 5f;
+        attackSpeed = 25f;
 
         waypoints = new List<Transform>();
         foreach (Transform child in transform)
@@ -35,19 +36,20 @@ public class Boss : MonoBehaviour
         if (waypoints.Count > 0)
         {
             currentWaypointIndex = 0;
+            player = GameObject.FindGameObjectWithTag("Player");
             StartCoroutine(MoveToNextWaypoint());
+            StartCoroutine(ShootCoroutine());
         }
-
-        StartCoroutine(LaunchProjectiles());
-        player = GameObject.FindGameObjectWithTag("Player");
     }
 
     void Update()
     {
-        Vector3 direction = player.transform.position - transform.position;
-        direction.Normalize();
-
-        transform.rotation = Quaternion.LookRotation(direction);
+        if (player != null)
+        {
+            Vector3 direction = player.transform.position - transform.position;
+            direction.Normalize();
+            transform.rotation = Quaternion.LookRotation(direction);
+        }
     }
 
     private IEnumerator MoveToNextWaypoint()
@@ -85,24 +87,28 @@ public class Boss : MonoBehaviour
         }
     }
 
-    private IEnumerator LaunchProjectiles()
+    private IEnumerator ShootCoroutine()
     {
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(minLaunchInterval, maxLaunchInterval));
-            LaunchProjectileAtPlayer();
+            if (player != null)
+            {
+                LaunchProjectileAtPlayer();
+                yield return new WaitForSeconds(launchInterval);
+            }
+            else
+            {
+                yield return null;
+            }
         }
     }
 
     private void LaunchProjectileAtPlayer()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
             Vector3 direction = player.transform.position - transform.position;
             direction.Normalize();
-
-            transform.rotation = Quaternion.LookRotation(direction);
 
             GameObject projectile = Instantiate(
                 projectilePrefab,
@@ -112,7 +118,7 @@ public class Boss : MonoBehaviour
             Rigidbody rb = projectile.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = direction * speed;
+                rb.velocity = direction * attackSpeed;
             }
             Destroy(projectile, 3f);
         }
