@@ -39,6 +39,7 @@ public class LettersPuzzle : Interactable
         moveCamera = FindObjectOfType<MoveCamera>();
         camController = FindObjectOfType<CamController>();
         eventLettersCamera = GameObject.Find("LetterPuzleCamera").GetComponent<Camera>();
+        eventLettersCamera.enabled = false;
     }
 
     // Обработчик кнопки "Готово"
