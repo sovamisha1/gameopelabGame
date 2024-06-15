@@ -5,4 +5,5 @@ using UnityEngine;
 public interface IInteracteble
 {
     void Interact();
+    bool IsImportant();
 }

@@ -5,6 +5,7 @@ public class UIController : MonoBehaviour
 {
     [Header("UI Elements")]
     public Text chargeText;
+    public Text hintText;
     public Slider staminaSlider;
     public Slider hpSlider;
     public PlayerController player;
@@ -19,12 +20,14 @@ public class UIController : MonoBehaviour
         chargeText = GameObject.FindWithTag("ChargesText").GetComponent<Text>();
         staminaSlider = GameObject.FindWithTag("StaminaSlider").GetComponent<Slider>();
         hpSlider = GameObject.FindWithTag("HpSlider").GetComponent<Slider>();
+        hintText = GameObject.FindWithTag("HintText").GetComponent<Text>();
     }
 
     void Update()
     {
         stamina = player.GetParametrs("stamina");
         hp = player.GetParametrs("hp");
+        hintText.enabled = player.ShowHint();
         UpdateUI();
     }
 

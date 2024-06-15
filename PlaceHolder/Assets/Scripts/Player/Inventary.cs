@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    private Dictionary<string, int> inventory = new Dictionary<string, int>();
+    public Dictionary<string, int> inventory = new Dictionary<string, int>();
 
     public void AddItem(string item)
     {
@@ -20,6 +20,11 @@ public class Inventory : MonoBehaviour
     public bool DoesContainItem(string item)
     {
         return inventory.ContainsKey(item);
+    }
+
+    public bool DoesContainItem(string item, int howMany)
+    {
+        return inventory.TryGetValue(item, out int count) && count == howMany;
     }
 
     public bool RemoveItem(string item)

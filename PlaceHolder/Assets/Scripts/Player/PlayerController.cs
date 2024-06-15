@@ -20,6 +20,11 @@ public class PlayerController : MonoBehaviour
     bool penaltyStamina;
     bool crouchActiv;
     bool dead;
+    bool miniGameActive;
+    bool isInteract;
+    bool moveAndStep;
+    bool inDeathZone;
+    bool eventComplite;
 
     [HideInInspector]
     public float moveSpeed;
@@ -29,18 +34,25 @@ public class PlayerController : MonoBehaviour
 
     [HideInInspector]
     public float coefCrouchSpeed;
+    private float speedUpDown;
 
     private KeyCode jumpKey; // = InputManager.instance.GetKeyForAction("Jump"); // KeyCode.Space;
     private KeyCode runKey; //=  InputManager.instance.GetKeyForAction("Run"); //KeyCode.LeftShift;
     private KeyCode crouchKey; //= InputManager.instance.GetKeyForAction("Crouch"); //KeyCode.LeftControl;
     private KeyCode interactKey; //= InputManager.instance.GetKeyForAction("Interact"); //KeyCode.LeftControl;
+    private KeyCode oneKey; //= InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
+    private KeyCode twoKey; // = InputManager.instance.GetKeyForAction("Interact2"); //KeyCode.LeftControl;
+    private KeyCode useKey; //= InputManager.instance.GetKeyForAction("UseItem"); //KeyCode.LeftControl;
+    private KeyCode refilKey; //  = InputManager.instance.GetKeyForAction(RefilPotion); 
 
     [Header("Ground Check")]
     public float playerHeight;
     public LayerMask Ground;
     public LayerMask StairsStep;
+    public LayerMask Ladder;
     bool grounded;
     bool stairssteped;
+    bool isLadder;
 
     public Transform orientation;
 
@@ -49,36 +61,65 @@ public class PlayerController : MonoBehaviour
     float stamina;
     float hp;
     float playerTakeRange;
+    float inHand; //0 - ничего, 1 - Posion, 2- Staff
 
     Vector3 moveDirection;
     RaycastHit hit;
+    AudioSource audioSource;
     public Camera cameraVector;
+    private Inventory inventory;
+    private Potion potion;
+    private MagicStaff magicStaff;
+    private Transform spawnPoint;
+    private GameObject deathZone;
+    private GameObject cameraPoint;
 
     Rigidbody rb;
-    bool isInteract;
-    bool moveAndStep;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
 
-        hp = 50f;
+        hp = 100f;
         stamina = 100f;
         coefRunSpeed = 1.75f;
         coefCrouchSpeed = 0.7f;
         staminaRedZone = 30f;
         playerTakeRange = playerHeight * 1.25f;
+        inHand = 0f;
+        speedUpDown = 0.02f;
+        
+        
 
         jumpKey = InputManager.instance.GetKeyForAction("Jump");
         runKey = InputManager.instance.GetKeyForAction("Run");
         crouchKey = InputManager.instance.GetKeyForAction("Crouch");
         interactKey = InputManager.instance.GetKeyForAction("Interact");
+        oneKey = InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
+        twoKey = InputManager.instance.GetKeyForAction("Interact2");
+        useKey = InputManager.instance.GetKeyForAction("UseItem");
+        refilKey = InputManager.instance.GetKeyForAction("RefilPotion"); 
+        
 
         if (cameraVector == null)
             cameraVector = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (orientation == null)
             orientation = GameObject.Find("Orientation").GetComponent<Transform>();
+        if (spawnPoint == null)
+            spawnPoint = GameObject.Find("SavePoint").GetComponent<Transform>();
+        if (deathZone == null)
+            deathZone = GameObject.Find("DeathZone");
+        if (cameraPoint == null)
+            cameraPoint = GameObject.Find("СameraPos"); 
+        audioSource = GetComponent<AudioSource>();  
+
+
+        //spawnPoint.position = 
+
+        inventory = FindObjectOfType<Inventory>();
+        potion = FindObjectOfType<Potion>();
+        magicStaff = FindObjectOfType<MagicStaff>();
 
         dead = false;
         crouchActiv = false;
@@ -86,24 +127,18 @@ public class PlayerController : MonoBehaviour
         running = false;
         penaltyStamina = false;
         isInteract = false;
+        eventComplite = false;
+        inDeathZone = false;
+        miniGameActive = false;
+        isLadder = false;
         //moveSpeed = baseMoveSpeed;
     }
 
     private void Update()
     {
-        // ground check
-        grounded = Physics.Raycast(
-            transform.position,
-            Vector3.down,
-            playerHeight * 0.5f + 0.3f,
-            Ground
-        );
-        stairssteped = Physics.Raycast(
-            transform.position,
-            Vector3.down,
-            playerHeight * 0.5f + 0.3f,
-            StairsStep
-        );
+        //_AdminKill();
+        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, Ground);
+        stairssteped = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, StairsStep);
         moveAndStep = (
             !(
                 Input.GetKey(KeyCode.W)
@@ -116,8 +151,8 @@ public class PlayerController : MonoBehaviour
                 || Input.GetKey(KeyCode.LeftArrow)
             ) && stairssteped
         );
-
-        MyInput();
+        if(!miniGameActive)
+            MyInput();
         if (running)
         {
             stamina -= 0.03f;
@@ -154,8 +189,14 @@ public class PlayerController : MonoBehaviour
 
     private void MyInput()
     {
+        if(dead)
+            Death();
+        ItemsManager();
+        UseItems();
         ShowHint();
         GetInfoItems();
+        UseLadder();
+        
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
@@ -200,13 +241,15 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetKeyDown(crouchKey) && grounded && crouchActiv)
             StandUp();
 
-        //isCrouch();
     }
+
+    //=====БЛОК ПЕРЕМЕЩЕНИЯ ПЕРСОНАЖА====
 
     private void MovePlayer()
     {
         // calculate movement direction
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+    
 
         // on ground
         if (grounded || stairssteped)
@@ -237,9 +280,7 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        // reset y velocity
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
@@ -280,6 +321,23 @@ public class PlayerController : MonoBehaviour
         crouchActiv = false;
     }
 
+    private void UseLadder()
+    {
+        isLadder = Physics.Raycast(
+            new Ray(cameraVector.transform.position, orientation.transform.forward),
+            out hit,
+            0.75f,
+            Ladder
+        );
+
+        if (isLadder && Input.GetKey(interactKey)){
+            rb.transform.position += Vector3.up * speedUpDown;
+        }
+    }
+
+    
+    //=====БЛОК ПАРАМЕТРЫ ПЕРСОНАЖА====
+
     public float GetParametrs(string nameParametrs)
     {
         switch (nameParametrs)
@@ -307,6 +365,8 @@ public class PlayerController : MonoBehaviour
             dead = true;
     }
 
+    //=====БЛОК ВЗАИМОДЕЙСТВИЯ С ПРЕДМЕТАМИ====
+
     public bool ShowHint()
     {
         int layerMask = LayerMask.GetMask("Interactable");
@@ -333,12 +393,117 @@ public class PlayerController : MonoBehaviour
         );
         if (isInteract && Input.GetKeyDown(interactKey))
         {
-            //Debug.Log(isInteract);
             Interactable interactable = hit.collider.GetComponent<Interactable>();
             if (interactable != null)
             {
                 interactable.Interact();
+                eventComplite = interactable.IsImportant();
+                if (eventComplite){
+                    spawnPoint.position = rb.transform.position;
+                }
+                eventComplite = false;
+
             }
         }
+    }
+
+    private void ItemsManager(){
+        if (Input.GetKeyDown(oneKey) && inventory.DoesContainItem("Зелье Лечения")){
+            if(inHand == 0){
+                potion.SelectPotion(true);
+                inHand = 1;
+            }
+            else if(inHand == 2){
+                magicStaff.SelectStaff(false);
+                potion.SelectPotion(true);
+                inHand = 1;
+            }
+            else{
+                potion.SelectPotion(false);
+                inHand = 0;
+            }
+        }
+        else if(Input.GetKeyDown(twoKey) && inventory.DoesContainItem("Посох Мага")){
+            if(inHand == 0){
+                magicStaff.SelectStaff(true);
+                inHand = 2;
+            }
+            else if(inHand == 1){
+                potion.SelectPotion(false);
+                magicStaff.SelectStaff(true);
+                inHand = 2;
+            }
+            else{
+                magicStaff.SelectStaff(false);
+                inHand = 0;
+            }
+        }  
+    }
+
+    private void UseItems(){
+        if(Input.GetKeyDown(useKey)){
+            if(inHand == 1){
+                potion.TryToDrink();
+            }
+            else if(inHand == 2){
+                magicStaff.TryToAttack();
+            }
+        }
+    }
+
+    private void _RefilPotion(){
+        if(Input.GetKeyDown(refilKey) && inHand == 1){
+            potion.RefilPotion();
+        }
+    }
+
+    //=====БЛОК РАБОТЫ С САУНДОМ ПЕРСОНАЖА====
+
+    public void PlaySound(AudioClip audio){
+        audioSource.PlayOneShot(audio);
+    }
+
+
+    //=====БЛОК ВМЕШАТЕЛЬСТВА В ЖИЗНЬ ПЕРСОНАЖА====
+
+    /*private void _AdminKill(){
+        if(Input.GetKeyDown(KeyCode.L)){
+            //StopPlayer(true, spawnPoint.transform);
+        }
+    } */
+
+    public void StopPlayer(bool playerMode, Camera eventCamera){
+        if(playerMode){
+            miniGameActive = true;
+            cameraVector.enabled = false;
+            eventCamera.enabled = true;
+
+        }
+        else{
+            miniGameActive = false;
+            eventCamera.enabled = false;
+            cameraVector.enabled = true;
+        }
+    }
+
+    public void Death(){
+
+        StandUp();
+        rb.transform.position = spawnPoint.position;
+        
+
+        hp = 100f;
+        stamina = 100f;
+
+        dead = false;
+        crouchActiv = false;
+        readyToJump = true;
+        running = false;
+        penaltyStamina = false;
+        isInteract = false;
+        eventComplite = false;
+        inDeathZone = false;
+        miniGameActive = false;
+        isLadder = false;
     }
 }

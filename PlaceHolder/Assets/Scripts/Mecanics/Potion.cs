@@ -3,21 +3,25 @@ using System.Collections;
 
 public class Potion : MonoBehaviour
 {
-    public GameObject potion;
     public Camera mainCamera;
+    public GameObject potion;
     public GameObject emptyPotionModel;
     public GameObject opendPotionModel;
     public GameObject fullPotionModel;
+    public Renderer potionRenderer;
     public PlayerController playerController;
 
     private Animator animator;
-    private bool canDrink = true;
-    private bool takePotion = true;
-    private bool canSwitch = true;
-    private bool potionIsNotEmpty = true;
+
+    private bool isHoldingPotion = false;
+    private bool isNotEmptyPotion = true;
+    private bool isDrinkingPotion = false;
 
     void Start()
     {
+        isHoldingPotion = false;
+        isNotEmptyPotion = true;
+        isDrinkingPotion = false;
         if (mainCamera == null)
             mainCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (potion == null)
@@ -35,48 +39,25 @@ public class Potion : MonoBehaviour
         if (potion != null && mainCamera != null)
         {
             potion.transform.SetParent(mainCamera.transform, false);
-            Positionpotion();
         }
-
-        foreach (Transform child in potion.transform)
-        {
-            child.gameObject.GetComponent<Renderer>().enabled = takePotion;
-        }
-
-        potion.GetComponent<Renderer>().enabled = takePotion;
+        potionRenderer = potion.GetComponent<Renderer>();
+        potionRenderer.enabled = isHoldingPotion;
         RefilPotion();
+        HideAndShowFirstChild(false);
+        HideAndShowSecondChild(false);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("TakePotion")) && canSwitch)
-        {
-            SwitchPotion();
-        }
-
-        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("DrinkPotion")))
-        {
-            if (canDrink && potionIsNotEmpty)
-            {
-                StartCoroutine(DrinkPotion());
-            }
-        }
-        if (canSwitch)
+        if (isHoldingPotion)
         {
             Positionpotion();
-        }
-        if (Input.GetKeyDown(InputManager.instance.GetKeyForAction("RefilPotion")))
-        {
-            if (!potionIsNotEmpty && potion.GetComponent<Renderer>().enabled == true)
-            {
-                RefilPotion();
-            }
         }
     }
 
     IEnumerator DrinkPotion()
     {
-        canSwitch = false;
+        isDrinkingPotion = true;
         animator.SetBool("isStartedDrinking", true);
         HideAndShowFirstChild(false);
         SwitchPotionModel(gameObject, opendPotionModel);
@@ -89,27 +70,62 @@ public class Potion : MonoBehaviour
         yield return new WaitForSeconds(1.25f);
         animator.SetBool("isFinishedDrinking", false);
         Positionpotion();
-        canSwitch = true;
-        potionIsNotEmpty = false;
+        isNotEmptyPotion = false;
+        isDrinkingPotion = false;
         yield break;
     }
 
-    void RefilPotion()
+    public void RefilPotion()
     {
         SwitchPotionModel(gameObject, fullPotionModel);
         HideAndShowFirstChild(true);
-        HideAndSecondFirstChild(true);
-        potionIsNotEmpty = true;
+        HideAndShowSecondChild(true);
+        isNotEmptyPotion = true;
     }
 
-    void SwitchPotion()
+    public void TryToDrink()
     {
-        canDrink = !canDrink;
-        takePotion = !takePotion;
-        if (potionIsNotEmpty)
-            HideAndShowFirstChild(takePotion);
-        HideAndSecondFirstChild(takePotion);
-        potion.GetComponent<Renderer>().enabled = takePotion;
+        if (isHoldingPotion && isNotEmptyPotion && isDrinkingPotion == false)
+            StartCoroutine(DrinkPotion());
+        else
+        {
+            Debug.Log("Держу зелье: " + isHoldingPotion);
+            Debug.Log("Зелье не пустое: " + isNotEmptyPotion);
+            Debug.Log("Уже пью: " + isDrinkingPotion);
+        }
+    }
+
+    public void SelectPotion(bool toDo)
+    {
+        if (isDrinkingPotion)
+            return;
+        if (isNotEmptyPotion)
+        {
+            HideAndShowSecondChild(toDo);
+            HideAndShowFirstChild(toDo);
+        }
+        else
+        {
+            HideAndShowSecondChild(toDo);
+        }
+        isHoldingPotion = toDo;
+        potionRenderer.enabled = toDo;
+    }
+
+    private void HideAllChildren(GameObject parentObject, bool toDo)
+    {
+        foreach (Transform child in parentObject.transform)
+        {
+            Renderer childRenderer = child.gameObject.GetComponent<Renderer>();
+            if (childRenderer != null)
+            {
+                childRenderer.enabled = toDo;
+            }
+            if (child.childCount > 0)
+            {
+                HideAllChildren(child.gameObject, toDo);
+            }
+        }
     }
 
     void SwitchPotionModel(GameObject fromModel, GameObject toModel)
@@ -123,21 +139,21 @@ public class Potion : MonoBehaviour
         mr1.materials = mr2.materials;
     }
 
-    void HideAndShowFirstChild(bool toDo)
+    private void HideAndShowFirstChild(bool toDo)
     {
         Transform firstChild = transform.GetChild(0);
         firstChild.gameObject.GetComponent<Renderer>().enabled = toDo;
     }
 
-    void HideAndSecondFirstChild(bool toDo)
+    private void HideAndShowSecondChild(bool toDo)
     {
-        Transform secondChild = transform.GetChild(1);
-        secondChild.gameObject.GetComponent<Renderer>().enabled = toDo;
+        Transform firstChild = transform.GetChild(1);
+        firstChild.gameObject.GetComponent<Renderer>().enabled = toDo;
     }
 
     void Positionpotion()
     {
-        Vector3 localPosition = new Vector3(-0.95f, -0.6f, 1.4f);
+        Vector3 localPosition = new Vector3(-0.2f, -0.15f, 0.34f);
         potion.transform.localPosition = localPosition;
         potion.transform.localRotation = Quaternion.Euler(-90, 0, 0);
     }
