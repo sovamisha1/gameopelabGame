@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class SoundZone : MonoBehaviour
 {
-    AudioSource audioSource;
-    AudioClip sound;
+    //public AudioSource audioSource;
+    public AudioClip sound;
     public PlayerController playerController;
 
 
@@ -13,13 +13,15 @@ public class SoundZone : MonoBehaviour
     {
         if (playerController == null)
             playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
-        audioSource = GetComponent<AudioSource>();
+        //audioSource = GetComponent<AudioSource>();
+        if (sound == null)
+            sound = GetComponent<AudioClip>();
         //sound = GameObject.Find("DM-CGS-03").GetComponent<AudioClip>();
-        //Debug.Log(sound == null);
+        //Debug.Log(audioSource.clip == null);
     }
 
     private void OnTriggerEnter(Collider collision){
-        playerController.PlaySound(audioSource.clip);
+        playerController.PlaySound(sound);
         Destroy(gameObject);
         //audioSource.Play();
     }

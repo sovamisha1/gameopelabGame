@@ -23,7 +23,6 @@ public class PlayerController : MonoBehaviour
     bool miniGameActive;
     bool isInteract;
     bool moveAndStep;
-    bool inDeathZone;
     bool eventComplite;
 
     [HideInInspector]
@@ -66,13 +65,16 @@ public class PlayerController : MonoBehaviour
     Vector3 moveDirection;
     RaycastHit hit;
     AudioSource audioSource;
+    
+
     public Camera cameraVector;
     private Inventory inventory;
     private Potion potion;
     private MagicStaff magicStaff;
     private Transform spawnPoint;
-    private GameObject deathZone;
     private GameObject cameraPoint;
+    public AudioClip fiCraftTable;
+    public AudioClip pickUpBranch;
 
     Rigidbody rb;
 
@@ -83,7 +85,7 @@ public class PlayerController : MonoBehaviour
 
         hp = 100f;
         stamina = 100f;
-        coefRunSpeed = 1.75f;
+        coefRunSpeed = 2f;
         coefCrouchSpeed = 0.7f;
         staminaRedZone = 30f;
         playerTakeRange = playerHeight * 1.25f;
@@ -108,10 +110,12 @@ public class PlayerController : MonoBehaviour
             orientation = GameObject.Find("Orientation").GetComponent<Transform>();
         if (spawnPoint == null)
             spawnPoint = GameObject.Find("SavePoint").GetComponent<Transform>();
-        if (deathZone == null)
-            deathZone = GameObject.Find("DeathZone");
         if (cameraPoint == null)
             cameraPoint = GameObject.Find("СameraPos"); 
+        if (fiCraftTable == null)
+            fiCraftTable = GetComponent<AudioClip>();
+        if (pickUpBranch == null)
+            pickUpBranch = GetComponent<AudioClip>();
         audioSource = GetComponent<AudioSource>();  
 
 
@@ -128,7 +132,6 @@ public class PlayerController : MonoBehaviour
         penaltyStamina = false;
         isInteract = false;
         eventComplite = false;
-        inDeathZone = false;
         miniGameActive = false;
         isLadder = false;
         //moveSpeed = baseMoveSpeed;
@@ -197,10 +200,12 @@ public class PlayerController : MonoBehaviour
         GetInfoItems();
         UseLadder();
         
+        //Debug.Log(grounded);
+
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        if (Input.GetKey(jumpKey) && readyToJump && grounded && !crouchActiv)
+        if (Input.GetKeyDown(jumpKey) && readyToJump && grounded && !crouchActiv)
         {
             readyToJump = false;
 
@@ -305,8 +310,8 @@ public class PlayerController : MonoBehaviour
             rb.transform.position.x,
             rb.transform.position.y - 0.5f,
             rb.transform.position.z
-        );
-        rb.transform.localScale = new Vector3(1f, 0.5f, 1f);
+        ); //
+        rb.transform.localScale = new Vector3(3f, 1.5f, 3f);
         crouchActiv = true;
     }
 
@@ -317,7 +322,7 @@ public class PlayerController : MonoBehaviour
             rb.transform.position.y + 0.5f,
             rb.transform.position.z
         );
-        rb.transform.localScale = new Vector3(1f, 1f, 1f);
+        rb.transform.localScale = new Vector3(3f, 3f, 3f);
         crouchActiv = false;
     }
 
@@ -463,6 +468,18 @@ public class PlayerController : MonoBehaviour
         audioSource.PlayOneShot(audio);
     }
 
+    public void FirstInteractCraftTable(){
+        audioSource.PlayOneShot(fiCraftTable);
+    }
+
+    public void PickUpBranch(){
+        audioSource.PlayOneShot(pickUpBranch);
+    }
+
+    /*public void PickUpBranch(){
+        audioSource.PlayOneShot(pickUpBranch);
+    }*/
+
 
     //=====БЛОК ВМЕШАТЕЛЬСТВА В ЖИЗНЬ ПЕРСОНАЖА====
 
@@ -502,7 +519,6 @@ public class PlayerController : MonoBehaviour
         penaltyStamina = false;
         isInteract = false;
         eventComplite = false;
-        inDeathZone = false;
         miniGameActive = false;
         isLadder = false;
     }
