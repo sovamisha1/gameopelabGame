@@ -6,5 +6,6 @@ using UnityEngine;
 public class CraftingIngredient
 {
     public string itemName;
+    public string itemDesc;
     public int quantity;
 }
