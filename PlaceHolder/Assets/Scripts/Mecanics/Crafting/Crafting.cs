@@ -6,7 +6,7 @@ public class Crafting : Interactable
 {
     public GameObject craftingUI;
     private Inventory inventory;
-    private CraftingUI craftingUIScreen;
+    private CraftgUI craftingUIScreen;
     private PlayerController playerController;
     private CamController camController;
     private MoveCamera moveCamera;
@@ -15,7 +15,7 @@ public class Crafting : Interactable
     void Start()
     {
         inventory = FindObjectOfType<Inventory>();
-        craftingUIScreen = craftingUI.GetComponent<CraftingUI>();
+        craftingUIScreen = craftingUI.GetComponent<CraftgUI>();
         craftingUI.SetActive(false);
 
         playerController = FindObjectOfType<PlayerController>();

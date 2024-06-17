@@ -22,21 +22,76 @@ public class InputManager : MonoBehaviour
 
     void Start()
     {
-        // Дефолтные значения ключей
-        keyBindings["Flash"] = KeyCode.Mouse1;
-        keyBindings["Jump"] = KeyCode.Space;
-        keyBindings["Recharge"] = KeyCode.R;
-        keyBindings["Run"] = KeyCode.LeftShift;
-        keyBindings["Interact1"] = KeyCode.Alpha1;
-        keyBindings["Interact2"] = KeyCode.Alpha2;
-        keyBindings["UseItem"] = KeyCode.Mouse0;
-        keyBindings["RefilPotion"] = KeyCode.N;
-        keyBindings["Crouch"] = KeyCode.LeftControl;
-        keyBindings["Interact"] = KeyCode.E;
+        LoadKeyBindings();
+    }
+
+    private void LoadKeyBindings()
+    {
+        keyBindings["Flash"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Flash", KeyCode.Mouse1.ToString())
+            );
+        keyBindings["Jump"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Jump", KeyCode.Space.ToString())
+            );
+        keyBindings["Recharge"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Recharge", KeyCode.R.ToString())
+            );
+        keyBindings["Run"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Run", KeyCode.LeftShift.ToString())
+            );
+        keyBindings["Interact1"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Interact1", KeyCode.Alpha1.ToString())
+            );
+        keyBindings["Interact2"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Interact2", KeyCode.Alpha2.ToString())
+            );
+        keyBindings["UseItem"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("UseItem", KeyCode.Mouse0.ToString())
+            );
+        keyBindings["RefilPotion"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("RefilPotion", KeyCode.N.ToString())
+            );
+        keyBindings["Crouch"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Crouch", KeyCode.LeftControl.ToString())
+            );
+        keyBindings["Interact"] = (KeyCode)
+            System.Enum.Parse(
+                typeof(KeyCode),
+                PlayerPrefs.GetString("Interact", KeyCode.E.ToString())
+            );
+    }
+
+    public void SetKeyForAction(string action, KeyCode key)
+    {
+        keyBindings[action] = key;
+        PlayerPrefs.SetString(action, key.ToString());
     }
 
     public KeyCode GetKeyForAction(string action)
     {
         return keyBindings.ContainsKey(action) ? keyBindings[action] : KeyCode.None;
+    }
+
+    public Dictionary<string, KeyCode> GetKeyBindings()
+    {
+        return keyBindings;
     }
 }

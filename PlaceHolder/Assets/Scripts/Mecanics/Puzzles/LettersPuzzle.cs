@@ -10,6 +10,8 @@ public class LettersPuzzle : Interactable
     public Button submitButton;
     public Button exitButton;
     public GameObject puzzleUI;
+    public GameObject open;
+    public GameObject closed;
 
     private string solution = "fate";
 
@@ -53,12 +55,14 @@ public class LettersPuzzle : Interactable
 
         if (input == solution)
         {
-            Debug.Log("Победа");
+            Vector3 posit = gameObject.GetComponent<Transform>().position;
+            open.GetComponent<Transform>().position = posit;
             puzzleUI.SetActive(false); // Скрываем UI канвас
             gameObject.layer = 0; // Устанавливаем слой на Default (0)
             Destroy(this); // Удаляем скрипт
             DisableCursor(); // Отключаем курсор
             EnablePlayerControl(); // Включаем управление игроком
+            Destroy(gameObject);
         }
         else
         {
