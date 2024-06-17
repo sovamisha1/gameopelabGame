@@ -42,7 +42,7 @@ public class PlayerController : MonoBehaviour
     private KeyCode oneKey; //= InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
     private KeyCode twoKey; // = InputManager.instance.GetKeyForAction("Interact2"); //KeyCode.LeftControl;
     private KeyCode useKey; //= InputManager.instance.GetKeyForAction("UseItem"); //KeyCode.LeftControl;
-    private KeyCode refilKey; //  = InputManager.instance.GetKeyForAction(RefilPotion); 
+    private KeyCode refilKey; //  = InputManager.instance.GetKeyForAction(RefilPotion);
 
     [Header("Ground Check")]
     public float playerHeight;
@@ -54,6 +54,8 @@ public class PlayerController : MonoBehaviour
     bool isLadder;
 
     public Transform orientation;
+    private Transform cameraPosinition;
+    private Transform cameraRotation;
 
     float horizontalInput;
     float verticalInput;
@@ -91,8 +93,6 @@ public class PlayerController : MonoBehaviour
         playerTakeRange = playerHeight * 1.25f;
         inHand = 0f;
         speedUpDown = 0.02f;
-        
-        
 
         jumpKey = InputManager.instance.GetKeyForAction("Jump");
         runKey = InputManager.instance.GetKeyForAction("Run");
@@ -101,8 +101,7 @@ public class PlayerController : MonoBehaviour
         oneKey = InputManager.instance.GetKeyForAction("Interact1"); //KeyCode.LeftControl;
         twoKey = InputManager.instance.GetKeyForAction("Interact2");
         useKey = InputManager.instance.GetKeyForAction("UseItem");
-        refilKey = InputManager.instance.GetKeyForAction("RefilPotion"); 
-        
+        refilKey = InputManager.instance.GetKeyForAction("RefilPotion");
 
         if (cameraVector == null)
             cameraVector = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
@@ -111,15 +110,10 @@ public class PlayerController : MonoBehaviour
         if (spawnPoint == null)
             spawnPoint = GameObject.Find("SavePoint").GetComponent<Transform>();
         if (cameraPoint == null)
-            cameraPoint = GameObject.Find("СameraPos"); 
-        if (fiCraftTable == null)
-            fiCraftTable = GetComponent<AudioClip>();
-        if (pickUpBranch == null)
-            pickUpBranch = GetComponent<AudioClip>();
-        audioSource = GetComponent<AudioSource>();  
+            cameraPoint = GameObject.Find("СameraPos");
+        audioSource = GetComponent<AudioSource>();
 
-
-        //spawnPoint.position = 
+        //spawnPoint.position =
 
         inventory = FindObjectOfType<Inventory>();
         potion = FindObjectOfType<Potion>();
@@ -140,8 +134,18 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         //_AdminKill();
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, Ground);
-        stairssteped = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.3f, StairsStep);
+        grounded = Physics.Raycast(
+            transform.position,
+            Vector3.down,
+            playerHeight * 0.5f + 0.3f,
+            Ground
+        );
+        stairssteped = Physics.Raycast(
+            transform.position,
+            Vector3.down,
+            playerHeight * 0.5f + 0.3f,
+            StairsStep
+        );
         moveAndStep = (
             !(
                 Input.GetKey(KeyCode.W)
@@ -154,7 +158,7 @@ public class PlayerController : MonoBehaviour
                 || Input.GetKey(KeyCode.LeftArrow)
             ) && stairssteped
         );
-        if(!miniGameActive)
+        if (!miniGameActive)
             MyInput();
         if (running)
         {
@@ -192,15 +196,13 @@ public class PlayerController : MonoBehaviour
 
     private void MyInput()
     {
-        if(dead)
+        if (dead)
             Death();
         ItemsManager();
         UseItems();
         ShowHint();
         GetInfoItems();
         UseLadder();
-        
-        //Debug.Log(grounded);
 
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
@@ -245,7 +247,6 @@ public class PlayerController : MonoBehaviour
             Crouch();
         else if (Input.GetKeyDown(crouchKey) && grounded && crouchActiv)
             StandUp();
-
     }
 
     //=====БЛОК ПЕРЕМЕЩЕНИЯ ПЕРСОНАЖА====
@@ -254,7 +255,6 @@ public class PlayerController : MonoBehaviour
     {
         // calculate movement direction
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-    
 
         // on ground
         if (grounded || stairssteped)
@@ -335,12 +335,12 @@ public class PlayerController : MonoBehaviour
             Ladder
         );
 
-        if (isLadder && Input.GetKey(interactKey)){
+        if (isLadder && Input.GetKey(interactKey))
+        {
             rb.transform.position += Vector3.up * speedUpDown;
         }
     }
 
-    
     //=====БЛОК ПАРАМЕТРЫ ПЕРСОНАЖА====
 
     public float GetParametrs(string nameParametrs)
@@ -403,83 +403,86 @@ public class PlayerController : MonoBehaviour
             {
                 interactable.Interact();
                 eventComplite = interactable.IsImportant();
-                if (eventComplite){
+                if (eventComplite)
+                {
                     spawnPoint.position = rb.transform.position;
                 }
                 eventComplite = false;
-
             }
         }
     }
 
-    private void ItemsManager(){
-        if (Input.GetKeyDown(oneKey) && inventory.DoesContainItem("Зелье Лечения")){
-            if(inHand == 0){
+    private void ItemsManager()
+    {
+        if (Input.GetKeyDown(oneKey) && inventory.DoesContainItem("Зелье Лечения"))
+        {
+            if (inHand == 0)
+            {
                 potion.SelectPotion(true);
                 inHand = 1;
             }
-            else if(inHand == 2){
+            else if (inHand == 2)
+            {
                 magicStaff.SelectStaff(false);
                 potion.SelectPotion(true);
                 inHand = 1;
             }
-            else{
+            else
+            {
                 potion.SelectPotion(false);
                 inHand = 0;
             }
         }
-        else if(Input.GetKeyDown(twoKey) && inventory.DoesContainItem("Посох Мага")){
-            if(inHand == 0){
+        else if (Input.GetKeyDown(twoKey) && inventory.DoesContainItem("Посох Мага"))
+        {
+            if (inHand == 0)
+            {
                 magicStaff.SelectStaff(true);
                 inHand = 2;
             }
-            else if(inHand == 1){
+            else if (inHand == 1)
+            {
                 potion.SelectPotion(false);
                 magicStaff.SelectStaff(true);
                 inHand = 2;
             }
-            else{
+            else
+            {
                 magicStaff.SelectStaff(false);
                 inHand = 0;
             }
-        }  
+        }
     }
 
-    private void UseItems(){
-        if(Input.GetKeyDown(useKey)){
-            if(inHand == 1){
+    private void UseItems()
+    {
+        if (Input.GetKeyDown(useKey))
+        {
+            if (inHand == 1)
+            {
                 potion.TryToDrink();
             }
-            else if(inHand == 2){
+            else if (inHand == 2)
+            {
                 magicStaff.TryToAttack();
             }
         }
     }
 
-    private void _RefilPotion(){
-        if(Input.GetKeyDown(refilKey) && inHand == 1){
+    private void _RefilPotion()
+    {
+        if (Input.GetKeyDown(refilKey) && inHand == 1)
+        {
             potion.RefilPotion();
         }
     }
 
     //=====БЛОК РАБОТЫ С САУНДОМ ПЕРСОНАЖА====
 
-    public void PlaySound(AudioClip audio){
+    public void PlaySound(AudioClip audio)
+    {
         audioSource.PlayOneShot(audio);
     }
-
-    public void FirstInteractCraftTable(){
-        audioSource.PlayOneShot(fiCraftTable);
-    }
-
-    public void PickUpBranch(){
-        audioSource.PlayOneShot(pickUpBranch);
-    }
-
-    /*public void PickUpBranch(){
-        audioSource.PlayOneShot(pickUpBranch);
-    }*/
-
 
     //=====БЛОК ВМЕШАТЕЛЬСТВА В ЖИЗНЬ ПЕРСОНАЖА====
 
@@ -489,25 +492,27 @@ public class PlayerController : MonoBehaviour
         }
     } */
 
-    public void StopPlayer(bool playerMode, Camera eventCamera){
-        if(playerMode){
+    public void StopPlayer(bool playerMode, Camera eventCamera)
+    {
+        if (playerMode)
+        {
             miniGameActive = true;
+            // SmoothCameraMovment(eventCamera);
             cameraVector.enabled = false;
             eventCamera.enabled = true;
-
         }
-        else{
+        else
+        {
             miniGameActive = false;
             eventCamera.enabled = false;
             cameraVector.enabled = true;
         }
     }
 
-    public void Death(){
-
+    public void Death()
+    {
         StandUp();
         rb.transform.position = spawnPoint.position;
-        
 
         hp = 100f;
         stamina = 100f;
@@ -522,4 +527,39 @@ public class PlayerController : MonoBehaviour
         miniGameActive = false;
         isLadder = false;
     }
+
+    // private void SmoothCameraMovment(Camera eventCamera)
+    // {
+    //     Vector3 initialPosition = cameraVector.GetComponent<Transform>().position;
+    //     Quaternion initialRotation = cameraVector.GetComponent<Transform>().rotation;
+
+    //     Vector3 targetPosition = eventCamera.transform.position;
+    //     Quaternion targetRotation = eventCamera.transform.rotation;
+
+    //     float elapsedTime = 0f;
+    //     float smoothTime = 5f;
+
+    //     while (elapsedTime < smoothTime)
+    //     {
+    //         cameraVector.GetComponent<Transform>().position = Vector3.Lerp(
+    //             initialPosition,
+    //             targetPosition,
+    //             elapsedTime / smoothTime
+    //         );
+    //         cameraVector.GetComponent<Transform>().rotation = Quaternion.Lerp(
+    //             initialRotation,
+    //             targetRotation,
+    //             elapsedTime / smoothTime
+    //         );
+
+    //         elapsedTime += Time.deltaTime;
+    //     }
+
+    //     cameraVector.GetComponent<Transform>().position = targetPosition;
+    //     cameraVector.GetComponent<Transform>().rotation = targetRotation;
+
+
+    //     cameraVector.GetComponent<Transform>().position = initialPosition;
+    //     cameraVector.GetComponent<Transform>().rotation = initialRotation;
+    // }
 }

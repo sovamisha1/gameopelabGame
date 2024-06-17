@@ -4,6 +4,12 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     public Dictionary<string, int> inventory = new Dictionary<string, int>();
+    public List<string> allItems;
+
+    public List<string> ReturnAllItems()
+    {
+        return allItems;
+    }
 
     public void AddItem(string item)
     {

@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 
 public class CraftingRecipeDatabase : MonoBehaviour
@@ -14,6 +14,7 @@ public class CraftingRecipeDatabase : MonoBehaviour
             new CraftingRecipe()
             {
                 itemName = "Пламя возрождения",
+                itemDescription = "Заебался писать UI61",
                 itemSprite = Resources.Load<Sprite>("Imges/item1"),
                 ingredients = new List<CraftingIngredient>
                 {
@@ -27,7 +28,8 @@ public class CraftingRecipeDatabase : MonoBehaviour
             },
             new CraftingRecipe()
             {
-                itemName = "Сырая версия посоха (без Пера архангела и Нити Судьбы)",
+                itemName = "Сырая версия посоха",
+                itemDescription = "Заебался писать UI62",
                 itemSprite = Resources.Load<Sprite>("Images/item2"),
                 ingredients = new List<CraftingIngredient>
                 {
@@ -37,7 +39,18 @@ public class CraftingRecipeDatabase : MonoBehaviour
             },
             new CraftingRecipe()
             {
+                itemName = "Зелье Лечения",
+                itemDescription = "Заебался писать UI63",
+                itemSprite = Resources.Load<Sprite>("Images/item2"),
+                ingredients = new List<CraftingIngredient>
+                {
+                    new CraftingIngredient() { itemName = "Ромашка", quantity = 3 },
+                }
+            },
+            new CraftingRecipe()
+            {
                 itemName = "Тестовый крафт",
+                itemDescription = "Заебался писать UI64",
                 itemSprite = Resources.Load<Sprite>("Imges/item3"),
                 ingredients = new List<CraftingIngredient>
                 {
